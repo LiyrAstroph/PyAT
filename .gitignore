@@ -1,0 +1,8 @@
+*.*
+!setup.py
+!src/
+src/*
+!src/pyat
+src/pyat/*
+!src/pyat/*.py
+!.gitignore
