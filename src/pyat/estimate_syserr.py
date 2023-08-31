@@ -29,7 +29,7 @@ def estimate_syserr_median_filter(y, yerr, size=5, return_yfilter=False):
           The filtered result of y            
   """
   
-  y_filter = ndimage.median_filter(y, size=(size//2)*2+1, mode='neareast')
+  y_filter = ndimage.median_filter(y, size=(size//2)*2+1, mode='nearest')
 
   dev = np.mean((y-y_filter)**2)
   err = np.mean(yerr**2)
