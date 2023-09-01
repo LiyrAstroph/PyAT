@@ -26,7 +26,7 @@ def get_mean_rms(prof, err, axis=0, weight="uniform"):
 
   mean = np.sum(prof*weight, axis=axis, keepdims=True)
   
-  # no need to keepdims
+  # note the bias correction factor
   rms = np.sum(weight * (prof - mean)**2, axis=axis, keepdims=True)/(1.0 - np.sum(weight**2, axis=axis, keepdims=True))
   rms = np.sqrt(rms)
   
