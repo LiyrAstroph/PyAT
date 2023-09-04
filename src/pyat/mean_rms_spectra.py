@@ -25,16 +25,21 @@ def get_mean_rms(prof, err, axis=0, weight="uniform", return_err=False):
 
 
   mean = np.sum(prof*weight, axis=axis, keepdims=True)
+  mean = np.squeeze(mean)
   
   # note the bias correction factor
   rms = np.sum(weight * (prof - mean)**2, axis=axis, keepdims=True)/(1.0 - np.sum(weight**2, axis=axis, keepdims=True))
   rms = np.sqrt(rms)
+  rms = np.squeeze(rms)
 
   if return_err == True:
     mean_err = np.sqrt(np.sum(err**2*weight**2, axis=axis, keepdims=True))
     rms_err = np.sqrt(np.sum(weight**2 * (2*(prof-mean)*err)**2, axis=axis, keepdims=True))/(1.0 - np.sum(weight**2, axis=axis, keepdims=True))
-  
+    
+    mean_err = np.squeeze(mean_err)
+    rms_err = np.squeeze(rms_err)
+
   if return_err == False:
-    return mean.flatten(), rms.flatten()
+    return mean, rms
   else:
-    return mean.flatten(), mean_err.flatten(), rms.flatten(), rms_err.flatten()
+    return mean, mean_err, rms, rms_err
