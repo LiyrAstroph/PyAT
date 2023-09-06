@@ -6,3 +6,4 @@ src/*
 src/pyat/*
 !src/pyat/*.py
 !.gitignore
+docs

@@ -1,8 +1,28 @@
-__all__ = ["format_mica",]
+__all__ = ["format_mica"]
 
 import numpy as np 
 
 def format_mica(fname, data1, data2):
+  """
+  generate formatted file for MICA.
+
+  Parameters
+  ----------
+  fname : string
+    File name
+  
+  data1 : 2D array like
+    The driving light curve, time, flux, and error.
+  
+  data2 : 2D array like
+    The responding light curve, time, flux, and error.
+  
+  Returns
+  -------
+  None : None
+    No returns.
+  """
+
   if not isinstance(data2, list):
     fp = open(fname, "w")
     fp.write("# 1\n")

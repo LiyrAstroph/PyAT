@@ -6,27 +6,26 @@ from scipy import ndimage
 
 def estimate_syserr_median_filter(y, yerr, size=5, return_yfilter=False):
   """
-  estimate systematic errors using the median filter
+  estimate systematic errors using the median filter.
 
   Parameters
   ----------
   y, yerr : 1D array like
-          Input arrays
+    Input arrays
 
   size : int
-       Size of median filter 
+    Size of median filter 
 
   return_yfilter : boolen, optional
-       whether return the filtered result of y.
+    Whether return the filtered result of y.
 
   Returns
   ------- 
-
   syserr : float
-         The estimated systematic error
+    The estimated systematic error
 
   y_filter: 1D array like, optinal
-          The filtered result of y            
+    The filtered result of y            
   """
   
   y_filter = ndimage.median_filter(y, size=(size//2)*2+1, mode='nearest')
@@ -46,27 +45,26 @@ def estimate_syserr_median_filter(y, yerr, size=5, return_yfilter=False):
 
 def estimate_syserr(t, y, yerr, size=5, return_yfilter=False):
   """
-  estimate systematic errors
+  estimate systematic errors.
 
   Parameters
   ----------
   t, y, yerr : 1D array like
-          Input arrays, time, flux, and error
+    Input arrays, time, flux, and error
 
   size : int
-       Size of median filter 
+    Size of median filter 
 
   return_yfilter : boolen, optional
-       whether return the filtered result of y.
+    Whether return the filtered result of y.
 
   Returns
   ------- 
-
   syserr : float
-         The estimated systematic error
+    The estimated systematic error
 
   y_filter: 1D array like, optinal
-          The filtered result of y      
+    The filtered result of y      
   """
   dt = t[1:]-t[:-1]
   if np.min(dt) < 0.0:
