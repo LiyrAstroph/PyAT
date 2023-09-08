@@ -4,6 +4,18 @@ import numpy as np
 import copy
 import matplotlib.pyplot as plt 
 
+def wave2vel(wave, linecenter=4861.0):
+  
+  return (wave - linecenter)/linecenter * 3e5  # in km/s
+
+def vel2wave(vel, linecenter=4861.0):
+  
+  return (1.0 + vel/3e5) * linecenter
+
+def wavewidth2vel(width, lincenter=4861.0):
+
+  return width/lincenter * 3e5 # in km/s
+
 def get_mean_rms(prof, err, axis=0, weight="uniform", return_err=False):
   """
   get weighted mean and rms spectra from a set of spectra.
@@ -117,7 +129,30 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   imax = np.argmax(prof_win)
   wmax = wave_win[imax]
   fmax = prof_win[imax]
+
+  # remove points with negative fluxes
+  ileft = 0
+  iright = len(wave_win)
+  idx_neg = np.where(prof_win < 0.0)[0]
+  if len(idx_neg) > 0:
+    idx_neg_left = np.where(idx_neg < imax)[0]
+    idx_neg_right = np.where(idx_neg > imax)[0]
+    if len(idx_neg_left) > 0:
+      ileft = idx_neg[idx_neg_left[-1]]+1 # rightmost
+    if len(idx_neg_right) > 0:
+      iright = idx_neg[idx_neg_right[0]] # leftmost
   
+   if iright - ileft < 2:
+    raise ValueError("There are two few positive fluxes in profile.")
+
+  wave_win = wave_win[ileft:iright]
+  prof_win = prof_win[ileft:iright]
+  
+  # redetermine the peak location
+  imax = np.argmax(prof_win)
+  wmax = wave_win[imax]
+  fmax = prof_win[imax]
+
   wl = np.interp(fmax*0.5, prof_win[:imax], wave_win[:imax])
   wr = np.interp(fmax*0.5, prof_win[-1:imax:-1], wave_win[-1:imax:-1])
   fwhm = wr-wl
