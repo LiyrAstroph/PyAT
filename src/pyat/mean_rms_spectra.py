@@ -142,7 +142,7 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
     if len(idx_neg_right) > 0:
       iright = idx_neg[idx_neg_right[0]] # leftmost
   
-   if iright - ileft < 2:
+  if iright - ileft < 2:
     raise ValueError("There are two few positive fluxes in profile.")
 
   wave_win = wave_win[ileft:iright]
@@ -167,19 +167,21 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
     fig = plt.figure(figsize=(10, 4))
     ax = fig.add_subplot(111)
     ax.plot(wave, prof_sub)
-    if flag_con_sub:
+
+    ylim = ax.get_ylim()   
+    ax.fill_between(x=line_win, y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
+    
+    if flag_con_sub == True:
       ax.plot(wave, prof)
-      ylim = ax.get_ylim()
       ax.fill_between(x=con_sub_win[0:2], y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
       ax.fill_between(x=con_sub_win[2:4], y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
-      ax.fill_between(x=line_win, y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
-      ax.set_ylim(ylim[0], ylim[1])
-
+    
     ax.axhline(y=fmax, ls='--', lw=1, color='grey')
     ax.axhline(y=fmax*0.5, ls='--',lw=1, color='grey')
     ax.axvline(x=wr,ls='--', lw=1, color='grey')
     ax.axvline(x=wl,ls='--', lw=1, color='grey')
     ax.axhline(y=0,ls='--', lw=1, color='grey')
+    ax.set_ylim(ylim[0], ylim[1])
     
     plt.ioff()
 
