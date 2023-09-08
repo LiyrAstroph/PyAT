@@ -58,6 +58,9 @@ def get_mean_rms(prof, err, axis=0, weight="uniform", return_err=False):
     weight = 1.0/err**2
     # normalization
     weight /= np.sum(weight, axis=axis, keepdims=True) 
+  
+  else:
+    raise ValueError("unrecognized weight %s."%weight)
 
 
   mean = np.sum(prof*weight, axis=axis, keepdims=True)
@@ -143,7 +146,7 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
       iright = idx_neg[idx_neg_right[0]] # leftmost
   
   if iright - ileft < 2:
-    raise ValueError("There are two few positive fluxes in profile.")
+    raise ValueError("There are too few points with positive fluxes in profile.")
 
   wave_win = wave_win[ileft:iright]
   prof_win = prof_win[ileft:iright]
