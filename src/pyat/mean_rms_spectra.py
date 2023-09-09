@@ -156,6 +156,35 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   wmax = wave_win[imax]
   fmax = prof_win[imax]
 
+  # first make sure the first and last bin has small flux
+  if prof_win[0] > 0.5*fmax or prof_win[-1] > 0.5*fmax:
+    raise ValueError("starting and ending fluxes are larger than half of peak flux, \
+                     try to adjust the wavelength window.")
+
+  # check whether the flux in left and right parts is monotoneously increasing / decreasing
+  df_sign = np.zeros(len(wave_win))
+  df_sign[1:] = np.sign(prof_win[1:] - prof_win[0:-1])
+  df_sign[0] = df_sign[1]
+  idx_max = np.where(df_sign[1:]*df_sign[0:-1]<=0)[0]  # note the shift
+  imatch = np.where(idx_max == imax)[0]
+  idx_max = np.delete(idx_max, imatch) # remove the peak point
+  
+  flag_max = False 
+  flag_min = False
+  for i in idx_max:
+    # whether it is local minimum or maximum
+    if df_sign[i] >=0 and df_sign[i+1]<0:  # maximum
+      if prof_win[i] > 0.5*fmax:
+        flag_max = True
+    elif df_sign[i] <=0 and df_sign[i+1]>0:  # minimum:
+      if prof_win[i] < 0.5*fmax:
+        flag_min = True
+  
+  if flag_min and flag_max:
+    raise ValueError("profile in the window is multiple peaked, adjust the window.")
+  
+  # now determine the widths
+  # get fwhm
   wl = np.interp(fmax*0.5, prof_win[:imax], wave_win[:imax])
   wr = np.interp(fmax*0.5, prof_win[-1:imax:-1], wave_win[-1:imax:-1])
   fwhm = wr-wl
