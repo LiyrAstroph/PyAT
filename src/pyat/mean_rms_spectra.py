@@ -160,38 +160,15 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   if prof_win[0] > 0.5*fmax or prof_win[-1] > 0.5*fmax:
     raise ValueError("starting and ending fluxes are larger than half of peak flux, \
                      try to adjust the wavelength window.")
-
-  # check whether the flux in left and right parts is monotoneously increasing / decreasing
-  df_sign = np.zeros(len(wave_win))
-  df_sign[1:] = np.sign(prof_win[1:] - prof_win[0:-1])
-  df_sign[0] = df_sign[1]
-  idx_max = np.where(df_sign[1:]*df_sign[0:-1]<=0)[0]  # note the shift
-  imatch = np.where(idx_max == imax)[0]
-  idx_max = np.delete(idx_max, imatch) # remove the peak point
   
-  flag = False 
-  flocal_min =  fmax * 100.0
-  flocal_max = -fmax * 100.0
-
-  for i in range(len(idx_max)-1): # look for min and max from left to right
-    # whether it is local minimum or maximum
-    if df_sign[i] >=0 and df_sign[i+1]<0:  # maximum
-      if prof_win[i] > 0.5*fmax:
-        flocal_max = prof_win[i]
-        if flocal_min <= 0.5*fmax:
-          flag = True 
-          break
-    elif df_sign[i] <=0 and df_sign[i+1]>0:  # minimum:
-      if prof_win[i] < 0.5*fmax:
-        flocal_min = prof_win[i]
-        if flocal_max >= 0.5*fmax:
-          flag = True 
-          break
-
-  if flag:
-    print(wave_win[idx_max])
-    plt.plot(wave_win, prof_win)
-    plt.show()
+  flux_sub = prof_win - 0.5*fmax
+  df_sign = np.zeros(len(wave_win))
+  df_sign[1:] = np.sign(flux_sub[1:]*flux_sub[0:-1])
+  df_sign[0] = df_sign[1] 
+  idx_sign = np.where(df_sign<=0)[0]
+  
+  neq = np.count_nonzero(prof_win == 0.5*fmax)
+  if len(idx_sign) > 2 + neq:
     raise ValueError("profile in the window is multiple peaked, adjust the window.")
   
   # now determine the widths
