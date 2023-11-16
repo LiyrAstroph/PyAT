@@ -1,4 +1,4 @@
-__all__ = ["get_mean_rms", "get_line_widths", "get_line_widths_full"]
+__all__ = ["get_mean_rms", "get_line_widths"]
 
 import numpy as np
 import copy
@@ -83,7 +83,7 @@ def get_mean_rms(prof, err, axis=0, weight="uniform", return_err=False):
   else:
     return mean, mean_err, rms, rms_err
 
-def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=None, doplot=False):
+def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=None, doplot=False, return_full=False):
   """
   calculate line widths from a given profile
 
@@ -169,18 +169,29 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   imatch = np.where(idx_max == imax)[0]
   idx_max = np.delete(idx_max, imatch) # remove the peak point
   
-  flag_max = False 
-  flag_min = False
-  for i in idx_max:
+  flag = False 
+  flocal_min =  fmax * 100.0
+  flocal_max = -fmax * 100.0
+
+  for i in range(len(idx_max)-1): # look for min and max from left to right
     # whether it is local minimum or maximum
     if df_sign[i] >=0 and df_sign[i+1]<0:  # maximum
       if prof_win[i] > 0.5*fmax:
-        flag_max = True
+        flocal_max = prof_win[i]
+        if flocal_min <= 0.5*fmax:
+          flag = True 
+          break
     elif df_sign[i] <=0 and df_sign[i+1]>0:  # minimum:
       if prof_win[i] < 0.5*fmax:
-        flag_min = True
-  
-  if flag_min and flag_max:
+        flocal_min = prof_win[i]
+        if flocal_max >= 0.5*fmax:
+          flag = True 
+          break
+
+  if flag:
+    print(wave_win[idx_max])
+    plt.plot(wave_win, prof_win)
+    plt.show()
     raise ValueError("profile in the window is multiple peaked, adjust the window.")
   
   # now determine the widths
@@ -216,144 +227,11 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
     ax.set_ylim(ylim[0], ylim[1])
     
     plt.ioff()
-
-  return fwhm, sigma
-
-def get_line_widths_full(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=None, doplot=False):
-  """
-  calculate line widths from a given profile
-
-  Parameters
-  ----------
-  wave : 1D array like
-    wavelength
   
-  prof : 1D array like 
-    line profile
-  
-  line_win : {w1, w2}, float
-    line window
-  
-  flag_con_sub : boolen, optional
-    whether subtracting the underlying continuum
-  
-  con_sun_win : {w1, w2}, float, optional 
-    the windows to subtacting the underlying continuum
-
-  Returns
-  -------
-  wl, wr, wmax, fmax, sigma, [prof_sub]: float
-    left, right wavelength at half maximum, wavelength at maximum flux, sigma
-
-  """
-  prof_sub = copy.copy(prof)
-  
-  if flag_con_sub == True:
-    contl1, contl2, contr1, contr2 = np.array(con_sub_win)
-    wave_left = 0.5*(contl1+contl2)
-    wave_right = 0.5*(contr1+contr2)
-    idx_left = np.where((wave>=contl1)&(wave<=contl2))
-    idx_right = np.where((wave>=contr1)&(wave<=contr2))
-    con_left = np.mean(prof[idx_left])
-    con_right = np.mean(prof[idx_right])
-    con_sub = (con_right - con_left)/(wave_right - wave_left) *(wave - wave_left) + con_left
-    prof_sub[:] -= con_sub
-  
-  # extract the line region
-  idx = np.where((wave>=line_win[0]) & (wave<=line_win[1]))[0]
-  wave_win = wave[idx]
-  prof_win = prof_sub[idx]
-  
-  # get the peak wavelength and flux
-  imax = np.argmax(prof_win)
-  wmax = wave_win[imax]
-  fmax = prof_win[imax]
-
-  # remove points with negative fluxes
-  ileft = 0
-  iright = len(wave_win)
-  idx_neg = np.where(prof_win < 0.0)[0]
-  if len(idx_neg) > 0:
-    idx_neg_left = np.where(idx_neg < imax)[0]
-    idx_neg_right = np.where(idx_neg > imax)[0]
-    if len(idx_neg_left) > 0:
-      ileft = idx_neg[idx_neg_left[-1]]+1 # rightmost
-    if len(idx_neg_right) > 0:
-      iright = idx_neg[idx_neg_right[0]] # leftmost
-  
-  if iright - ileft < 2:
-    raise ValueError("There are too few points with positive fluxes in profile.")
-
-  wave_win = wave_win[ileft:iright]
-  prof_win = prof_win[ileft:iright]
-  
-  # redetermine the peak location
-  imax = np.argmax(prof_win)
-  wmax = wave_win[imax]
-  fmax = prof_win[imax]
-
-  # first make sure the first and last bin has small flux
-  if prof_win[0] > 0.5*fmax or prof_win[-1] > 0.5*fmax:
-    raise ValueError("starting and ending fluxes are larger than half of peak flux, \
-                     try to adjust the wavelength window.")
-
-  # check whether the flux in left and right parts is monotoneously increasing / decreasing
-  df_sign = np.zeros(len(wave_win))
-  df_sign[1:] = np.sign(prof_win[1:] - prof_win[0:-1])
-  df_sign[0] = df_sign[1]
-  idx_max = np.where(df_sign[1:]*df_sign[0:-1]<=0)[0]  # note the shift
-  imatch = np.where(idx_max == imax)[0]
-  idx_max = np.delete(idx_max, imatch) # remove the peak point
-  
-  flag_max = False 
-  flag_min = False
-  for i in idx_max:
-    # whether it is local minimum or maximum
-    if df_sign[i] >=0 and df_sign[i+1]<0:  # maximum
-      if prof_win[i] > 0.5*fmax:
-        flag_max = True
-    elif df_sign[i] <=0 and df_sign[i+1]>0:  # minimum:
-      if prof_win[i] < 0.5*fmax:
-        flag_min = True
-  
-  if flag_min and flag_max:
-    raise ValueError("profile in the window is multiple peaked, adjust the window.")
-  
-  # now determine the widths
-  # get fwhm
-  wl = np.interp(fmax*0.5, prof_win[:imax], wave_win[:imax])
-  wr = np.interp(fmax*0.5, prof_win[-1:imax:-1], wave_win[-1:imax:-1])
-  fwhm = wr-wl
-  
-  # get sigma 
-  wmean = np.sum(prof_win*wave_win)/np.sum(prof_win)
-  sigma = np.sqrt(np.sum(prof_win * (wave_win - wmean)**2)/np.sum(prof_win))
-  
-  if doplot:
-    plt.ion()
-
-    fig = plt.figure(figsize=(10, 4))
-    ax = fig.add_subplot(111)
-    ax.plot(wave, prof_sub)
-
-    ylim = ax.get_ylim()   
-    ax.fill_between(x=line_win, y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
-    
-    if flag_con_sub == True:
-      ax.plot(wave, prof)
-      ax.fill_between(x=con_sub_win[0:2], y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
-      ax.fill_between(x=con_sub_win[2:4], y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
-    
-    ax.axhline(y=fmax, ls='--', lw=1, color='grey')
-    ax.axhline(y=fmax*0.5, ls='--',lw=1, color='grey')
-    ax.axvline(x=wr,ls='--', lw=1, color='grey')
-    ax.axvline(x=wl,ls='--', lw=1, color='grey')
-    ax.axhline(y=0,ls='--', lw=1, color='grey')
-    ax.set_ylim(ylim[0], ylim[1])
-    
-    plt.ioff()
-
-  if flag_con_sub == False:
-    return wl, wr, wmax, fmax, sigma
+  if return_full == False:
+    return fwhm, sigma
   else:
-    return wl, wr, wmax, fmax, sigma, prof_sub
+    if flag_con_sub == False:
+      return wl, wr, wmax, fmax, sigma
+    else:
+      return wl, wr, wmax, fmax, sigma, prof_sub
