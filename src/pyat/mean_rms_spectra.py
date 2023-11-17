@@ -83,7 +83,8 @@ def get_mean_rms(prof, err, axis=0, weight="uniform", return_err=False):
   else:
     return mean, mean_err, rms, rms_err
 
-def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=None, doplot=False, return_full=False):
+def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=None, 
+                    doplot=False, return_full=False, flag_warning=False):
   """
   calculate line widths from a given profile
 
@@ -169,7 +170,17 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   
   neq = np.count_nonzero(prof_win == 0.5*fmax)
   if len(idx_sign) > 2 + neq:
-    raise ValueError("profile in the window is multiple peaked, adjust the window.")
+    # print(neq, idx_sign)
+    # plt.plot(wave_win, prof_win)
+    # plt.axhline(y=fmax)
+    # plt.axhline(y=0.5*fmax)
+    # plt.show() 
+    print("Warning: profile is multiple peaked.")
+    
+    # note: if flag_warning is flase,
+    # for mulitple peaked profile, numpy interpolates to narrowest line widths.
+    if flag_warning == True:
+      raise ValueError("profile in the window is multiple peaked, adjust the window.")
   
   # now determine the widths
   # get fwhm
