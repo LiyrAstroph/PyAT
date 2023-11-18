@@ -1,4 +1,5 @@
 *.*
+!README.rst
 !setup.py
 !src/
 src/*
