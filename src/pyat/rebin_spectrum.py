@@ -6,7 +6,24 @@ import matplotlib.pyplot as plt
 
 def rebin_spectrum(wave, prof, wave_rebin):
   """
-  rebin a spectrum to an even wavelength grid
+  rebin a spectrum to an input wavelength grid
+
+  Parameters
+  ----------
+  wave : 1D array like
+    wavelength array
+
+  prof : 1D array like
+    spectrum
+  
+  wave_rebin : 1D array like
+    wavelength array rebined to.
+
+  
+  Returns
+  -------
+  prof_rebin : 1D array like
+    rebined spectrum
   """
   # assign wave bin edge
   wave_edge = np.zeros(len(wave)+1)
@@ -34,7 +51,7 @@ def rebin_spectrum(wave, prof, wave_rebin):
     idx_left = np.searchsorted(wave_edge[idx_left:], wbin_left) + idx_left
     idx_right = np.searchsorted(wave_edge[idx_right:], wbin_right) + idx_right
     
-    print(i, idx_left, idx_right)  
+    # print(i, idx_left, idx_right)  
      
     if idx_left == idx_right:  # in the same bin of wave
       idx = min(max(0, idx_left-1), len(wave)-1) # make sure idx in the approporite range 
@@ -52,24 +69,24 @@ def rebin_spectrum(wave, prof, wave_rebin):
 
       prof_rebin[i] = flux / (wave_rebin_edge[i+1]-wave_rebin_edge[i])
 
-  x = np.array(list(zip(wave_edge[:-1], wave_edge[1:]))).flatten()
-  y = np.array(list(zip(prof, prof))).flatten()
-  plt.plot(x, y)
-  x = np.array(list(zip(wave_rebin_edge[:-1], wave_rebin_edge[1:]))).flatten()
-  y = np.array(list(zip(prof_rebin, prof_rebin))).flatten()
-  plt.plot(x, y)
-  plt.show()
+  # x = np.array(list(zip(wave_edge[:-1], wave_edge[1:]))).flatten()
+  # y = np.array(list(zip(prof, prof))).flatten()
+  # plt.plot(x, y)
+  # x = np.array(list(zip(wave_rebin_edge[:-1], wave_rebin_edge[1:]))).flatten()
+  # y = np.array(list(zip(prof_rebin, prof_rebin))).flatten()
+  # plt.plot(x, y)
+  # plt.show()
 
-  # check flux
-  flux = 0.0
-  for i in range(len(wave)):
-    flux += prof[i] * (wave_edge[i+1]-wave_edge[i])
-  print(flux)
+  # # check flux
+  # flux = 0.0
+  # for i in range(len(wave)):
+  #   flux += prof[i] * (wave_edge[i+1]-wave_edge[i])
+  # print(flux)
 
-  flux = 0.0
-  for i in range(len(wave_rebin)):
-    flux += prof_rebin[i] * (wave_rebin_edge[i+1]-wave_rebin_edge[i])
-  print(flux)
+  # flux = 0.0
+  # for i in range(len(wave_rebin)):
+  #   flux += prof_rebin[i] * (wave_rebin_edge[i+1]-wave_rebin_edge[i])
+  # print(flux)
 
   return prof_rebin
 
