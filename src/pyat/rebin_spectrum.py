@@ -48,7 +48,8 @@ def rebin_spectrum(wave, prof, wave_rebin):
   idx_right=0
   for i in range(len(wave_rebin)):
     wbin_left, wbin_right = wave_rebin_edge[i:i+2]
-    idx_left = np.searchsorted(wave_edge[idx_left:], wbin_left) + idx_left
+    # note in numpy, slices beyond array size are fine and return an empty 
+    idx_left  = np.searchsorted(wave_edge[idx_left:],  wbin_left)  + idx_left 
     idx_right = np.searchsorted(wave_edge[idx_right:], wbin_right) + idx_right
     
     # print(i, idx_left, idx_right)  
