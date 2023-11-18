@@ -111,7 +111,7 @@ def rebin_spectrum_with_error(wave_rebin, wave, prof, error):
   ----------
   wave_rebin : 1D array like
     wavelength array rebined to.
-    
+
   wave : 1D array like
     wavelength array
 
@@ -127,22 +127,10 @@ def rebin_spectrum_with_error(wave_rebin, wave, prof, error):
     rebined spectrum
   """
   # assign wave bin edge
-  wave_edge = np.zeros(len(wave)+1)
-  # assign edge as middle point
-  wave_edge[1:-1] = 0.5*(wave[0:-1]+wave[1:])
-  # left most
-  wave_edge[0] = wave[0] - 0.5*(wave[1]-wave[0])
-  # right most
-  wave_edge[-1]  = wave[-1]  + 0.5*(wave[-1]-wave[-2])
+  wave_edge = get_bin_edge(wave)
 
   # assign wave rebin edge
-  wave_rebin_edge = np.zeros(len(wave_rebin)+1)
-  # assign edge as middle point
-  wave_rebin_edge[1:-1] = 0.5*(wave_rebin[0:-1]+wave_rebin[1:])
-  # left most
-  wave_rebin_edge[0] = wave_rebin[0] - 0.5*(wave_rebin[1]-wave_rebin[0])
-  # right most
-  wave_rebin_edge[-1]  = wave_rebin[-1]  + 0.5*(wave_rebin[-1]-wave_rebin[-2])
+  wave_rebin_edge = get_bin_edge(wave_rebin)
 
   prof_rebin, error_rebin = np.zeros((2, len(wave_rebin)))
   idx_left=0
