@@ -29,21 +29,20 @@ def get_bin_edge(wave):
 
   return wave_edge
 
-def rebin_spectrum(wave, prof, wave_rebin):
+def rebin_spectrum(wave_rebin, wave, prof):
   """
   rebin a spectrum to an input wavelength grid
 
   Parameters
   ----------
+  wave_rebin : 1D array like
+    wavelength array rebined to.
+
   wave : 1D array like
     wavelength array
 
   prof : 1D array like
     spectrum
-  
-  wave_rebin : 1D array like
-    wavelength array rebined to.
-
   
   Returns
   -------
@@ -104,12 +103,15 @@ def rebin_spectrum(wave, prof, wave_rebin):
 
   return prof_rebin
 
-def rebin_spectrum_with_error(wave, prof, error, wave_rebin):
+def rebin_spectrum_with_error(wave_rebin, wave, prof, error):
   """
   rebin a spectrum to an input wavelength grid. make sure the signal to noise ratios are conserved.
 
   Parameters
   ----------
+  wave_rebin : 1D array like
+    wavelength array rebined to.
+    
   wave : 1D array like
     wavelength array
 
@@ -118,11 +120,7 @@ def rebin_spectrum_with_error(wave, prof, error, wave_rebin):
   
   error : 1D array like
     error
-  
-  wave_rebin : 1D array like
-    wavelength array rebined to.
-
-  
+   
   Returns
   -------
   prof_rebin : 1D array like
