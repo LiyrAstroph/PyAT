@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 #import piccf_mc
 
-def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple"):
+def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple",ignore_warning=False):
   """
   Interpolated CCF
   """
@@ -23,37 +23,39 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple")
     t1_intp = t1[idx]
     f1_intp = f1[idx]
     f2_intp = np.interp(t1_intp, t2-taui, f2)
-    ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+    ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp, ddof=0) * np.std(f2_intp, ddof=0))
 
     # second interpolate f1
     idx = np.where((t2>=t1[0]+taui) & (t2<=t1[-1]+taui))[0]
     t2_intp = t2[idx]
     f2_intp = f2[idx]
     f1_intp = np.interp(t2_intp, t1+taui, f1)
-    ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+    ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp, ddof=0) * np.std(f2_intp, ddof=0))
 
     # use average
     ccf[i] = 0.5*(ccf12+ccf21)
   
-  # peak tau
-  imax = np.argmax(ccf)
+  # peak tau, if there are multiple occurence of peaks, using the rightmost one.
+  imax = np.where(ccf == np.max(ccf))[0][-1]
   tau_peak = tau[imax]
   ccf_peak = ccf[imax]
   
   # centrod tau
   # points larger than a threshold
   idx_above = np.where(ccf >= threshold*ccf_peak)[0]
-  if idx_above[0] == 0:
-    # plt.plot(tau, ccf)
-    # plt.axhline(y=ccf_peak*threshold, ls='--')
-    # plt.show()
-    raise ValueError("tau_beg is too large to cover the region with ccf>threshold*ccf_peak.")
-  if idx_above[-1] == ntau-1:
-    # plt.plot(tau, ccf)
-    # plt.axhline(y=ccf_peak*threshold, ls='--')
-    # plt.show()
-    raise ValueError("tau_end is too small to cover the region with ccf>threshold*ccf_peak.")
-  
+
+  if not ignore_warning:
+    if idx_above[0] == 0:
+      plt.plot(tau, ccf)
+      plt.axhline(y=ccf_peak*threshold, ls='--')
+      plt.show()
+      raise ValueError("tau_beg is too large to cover the region with ccf>threshold*ccf_peak.")
+    if idx_above[-1] == ntau-1:
+      plt.plot(tau, ccf)
+      plt.axhline(y=ccf_peak*threshold, ls='--')
+      plt.show()
+      raise ValueError("tau_end is too small to cover the region with ccf>threshold*ccf_peak.")
+    
   if mode == "multiple":
 
     tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
@@ -93,14 +95,14 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple")
 
       tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
 
-  # print(tau_peak, ccf_peak, tau_cent)
-
   # plt.plot(tau, ccf, marker='o', markersize=2)
   # plt.axhline(y=ccf_peak)
   # plt.axhline(y=threshold*ccf_peak)
   # # plt.axvline(x=tau_cross_right)
   # # plt.axvline(x=tau_cross_left)
   # plt.axvline(x=tau[imax])
+
+  # print(tau_peak, ccf_peak, tau_cent)
 
   # t, r, rmax, tau_cent, tau_peak = piccf_mc.piccf(t1, f1, t2, f2, ntau, tau_beg, tau_end)
   # print(tau_peak, rmax, tau_cent)
@@ -110,12 +112,13 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple")
 
   return tau, ccf, ccf_peak, tau_peak, tau_cent
 
-def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple", nsim=1000):
+def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple", nsim=1000, ignore_warning=False):
   """
   do mc simulation
   """
   print("doing MC simulation, waiting for a while...")
   ccf_peak_mc, tau_peak_mc, tau_cent_mc = np.zeros((3, nsim))
+
   for i in range(nsim):
     if i%(nsim/10) == 0:
       print("%d%%-"%(100*i/nsim), end="", flush=True)
@@ -142,20 +145,20 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode=
 
     # calculate ccf
     tau, ccf, ccf_peak_mc[i], tau_peak_mc[i], tau_cent_mc[i] = iccf(t1_sim, f1_sim, t2_sim, f2_sim, ntau, tau_beg, tau_end,
-                                                                    threshold=threshold, mode=mode)
+                                                                    threshold=threshold, mode=mode, ignore_warning=ignore_warning)
   
   print("done")
 
   # fig = plt.figure(1)
-  # plt.hist(tau_peak_mc, density=True)
-  # plt.hist(tau_cent_mc, alpha=0.5, density=True)
-  # plt.hist(ccf_peak_mc, density=True)
-  # plt.show()
+  # #plt.hist(tau_peak_mc, density=True)
+  # plt.hist(tau_cent_mc, alpha=0.5, density=True, range=[-100, 500])
+  # #plt.hist(ccf_peak_mc, density=True)
+  # #plt.show()
 
-  # fig = plt.figure(2)
+  # #fig = plt.figure(2)
   # tau_cent_mc, tau_peak_mc = piccf_mc.piccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, nsim)
-  # plt.hist(tau_peak_mc, density=True)
-  # plt.hist(tau_cent_mc, alpha=0.5, density=True)
+  # #plt.hist(tau_peak_mc, density=True)
+  # plt.hist(tau_cent_mc, alpha=0.5, density=True, range=[-100, 500])
   # plt.show()
 
   return ccf_peak_mc, tau_peak_mc, tau_cent_mc
