@@ -10,4 +10,5 @@ the following procedures
 - Generating formatted input files for MICA package;
 - Calculating mean and rms spectra and their line widths;
 - Removing outliers from a light curve using the median filter;
-- Rebin spectra by keeping the total flux unchanged.
+- Rebin spectra by keeping the total flux unchanged;
+- Interpolated cross-correlation function.

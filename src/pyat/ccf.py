@@ -117,6 +117,9 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode=
   print("doing MC simulation, waiting for a while...")
   ccf_peak_mc, tau_peak_mc, tau_cent_mc = np.zeros((3, nsim))
   for i in range(nsim):
+    if i%(nsim/10) == 0:
+      print("%d%%-"%(100*i/nsim), end="", flush=True)
+
     # resample f1
     rand = np.random.randint(low=0, high=len(f1), size=len(f1))
     rand = np.sort(rand)
@@ -141,6 +144,8 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode=
     tau, ccf, ccf_peak_mc[i], tau_peak_mc[i], tau_cent_mc[i] = iccf(t1_sim, f1_sim, t2_sim, f2_sim, ntau, tau_beg, tau_end,
                                                                     threshold=threshold, mode=mode)
   
+  print("done")
+
   # fig = plt.figure(1)
   # plt.hist(tau_peak_mc, density=True)
   # plt.hist(tau_cent_mc, alpha=0.5, density=True)
@@ -153,7 +158,7 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode=
   # plt.hist(tau_cent_mc, alpha=0.5, density=True)
   # plt.show()
 
-  return tau_peak_mc, tau_cent_mc, ccf_peak_mc
+  return ccf_peak_mc, tau_peak_mc, tau_cent_mc
 
 
 
