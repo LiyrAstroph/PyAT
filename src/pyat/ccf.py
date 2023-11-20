@@ -5,7 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 #import piccf_mc
 
-def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple",ignore_warning=False):
+def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
+         threshold=0.8, mode="multiple",ignore_warning=False):
   """
   Interpolated CCF
   """
@@ -63,7 +64,7 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple",
   else:
 
     # first check if there are multiple peaks
-    dtau_idx = np.zeros(len(idx_above))
+    dtau_idx = np.zeros(idx_above.shape[0])
     dtau_idx[1:] = tau[idx_above[1:]] - tau[idx_above[:-1]]
     dtau_idx[0] = dtau_idx[1]
     dtau_idx_min = np.min(dtau_idx)
@@ -71,16 +72,16 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple",
     # if there is a large gap
     idx_gap = np.where(dtau_idx > 3*dtau_idx_min)[0]
 
-    if len(idx_gap) > 0:  # multiply peaked, use the major peak
+    if idx_gap.shape[0] > 0:  # multiply peaked, use the major peak
 
       imax_left_all  = np.where((ccf < threshold*ccf_peak) & (tau < tau_peak) )[0]
-      if len(imax_left_all) > 0:
+      if imax_left_all.shape[0] > 0:
         imax_left = imax_left_all[-1]
       else:
         imax_left = 0
 
       imax_right_all = np.where((ccf < threshold*ccf_peak) & (tau > tau_peak) )[0]
-      if len(imax_right_all) > 0:
+      if imax_right_all.shape[0] > 0:
         imax_right = imax_right_all[0]
       else:
         imax_right = ntau
@@ -121,7 +122,8 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple",
 
   return tau, ccf, ccf_peak, tau_peak, tau_cent
 
-def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple", nsim=1000, ignore_warning=False):
+def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
+            threshold=0.8, mode="multiple", nsim=1000, ignore_warning=False):
   """
   do mc simulation
   """
@@ -140,7 +142,7 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode=
     t1_sim = t1[idxs]
     e1_sim = e1[idxs]/np.sqrt(counts) # reduce errors
     # add Gaussian noises
-    f1_sim = f1[idxs] + e1_sim * np.random.randn(len(idxs))
+    f1_sim = f1[idxs] + e1_sim * np.random.randn(idxs.shape[0])
 
     # resample f2
     rand = np.random.randint(low=0, high=len(f2), size=len(f2))
@@ -150,7 +152,7 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, threshold=0.8, mode=
     t2_sim = t2[idxs]
     e2_sim = e2[idxs]/np.sqrt(counts) # reduce errors
     # add Gaussian noises
-    f2_sim = f2[idxs] + e2_sim * np.random.randn(len(idxs))
+    f2_sim = f2[idxs] + e2_sim * np.random.randn(idxs.shape[0])
 
     # calculate ccf
     tau, ccf, ccf_peak_mc[i], tau_peak_mc[i], tau_cent_mc[i] = iccf(t1_sim, f1_sim, t2_sim, f2_sim, ntau, tau_beg, tau_end,

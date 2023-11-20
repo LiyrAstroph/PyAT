@@ -142,12 +142,12 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   ileft = 0
   iright = len(wave_win)
   idx_neg = np.where(prof_win < 0.0)[0]
-  if len(idx_neg) > 0:
+  if idx_neg.shape[0] > 0:
     idx_neg_left = np.where(idx_neg < imax)[0]
     idx_neg_right = np.where(idx_neg > imax)[0]
-    if len(idx_neg_left) > 0:
+    if idx_neg_left.shape[0] > 0:
       ileft = idx_neg[idx_neg_left[-1]]+1 # rightmost
-    if len(idx_neg_right) > 0:
+    if idx_neg_right.shape[0] > 0:
       iright = idx_neg[idx_neg_right[0]] # leftmost
   
   if iright - ileft < 2:
@@ -180,7 +180,7 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   
   # check if there are points below 0.5fmax within the leftmost and rightmost above region.
   idx_below = np.where((prof_win < 0.5*fmax) & (wave_win >= wave_win[idx_above[0]]) & (wave_win <= wave_win[idx_above[-1]]))[0]
-  if len(idx_below > 0):
+  if idx_below.shape[0] > 0:
     # print(neq, idx_sign)
     # plt.plot(wave_win, prof_win)
     # plt.axhline(y=fmax)
