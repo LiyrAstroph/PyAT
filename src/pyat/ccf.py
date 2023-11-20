@@ -69,25 +69,34 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple",
     dtau_idx_min = np.min(dtau_idx)
 
     # if there is a large gap
-    idx_gap = np.where(dtau_idx > 2*dtau_idx_min)[0]
+    idx_gap = np.where(dtau_idx > 3*dtau_idx_min)[0]
 
     if len(idx_gap) > 0:  # multiply peaked, use the major peak
 
-      imax_left  = np.where((ccf < threshold*ccf_peak) & (tau < tau_peak) )[0][-1]
-      imax_right = np.where((ccf < threshold*ccf_peak) & (tau > tau_peak) )[0][0]
+      imax_left_all  = np.where((ccf < threshold*ccf_peak) & (tau < tau_peak) )[0]
+      if len(imax_left_all) > 0:
+        imax_left = imax_left_all[-1]
+      else:
+        imax_left = 0
+
+      imax_right_all = np.where((ccf < threshold*ccf_peak) & (tau > tau_peak) )[0]
+      if len(imax_right_all) > 0:
+        imax_right = imax_right_all[0]
+      else:
+        imax_right = ntau
 
       ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
       ccf_norm = np.sum(ccf[imax_left+1:imax_right])
 
       # left cross point
-      tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
-      ccf_sum  += threshold*ccf_peak * tau_cross_left
-      ccf_norm += threshold*ccf_peak
+      # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
+      # ccf_sum  += threshold*ccf_peak * tau_cross_left
+      # ccf_norm += threshold*ccf_peak
 
       # right cross point
-      tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
-      ccf_sum  += threshold*ccf_peak * tau_cross_right
-      ccf_norm += threshold*ccf_peak
+      # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
+      # ccf_sum  += threshold*ccf_peak * tau_cross_right
+      # ccf_norm += threshold*ccf_peak
 
       tau_cent = ccf_sum/ccf_norm
 

@@ -2,16 +2,20 @@ __all__ = ["get_mean_rms", "get_line_widths"]
 
 import numpy as np
 import copy
+from numba import njit
 import matplotlib.pyplot as plt 
 
+@njit
 def wave2vel(wave, linecenter=4861.0):
   
   return (wave - linecenter)/linecenter * 3e5  # in km/s
 
+@njit
 def vel2wave(vel, linecenter=4861.0):
   
   return (1.0 + vel/3e5) * linecenter
 
+@njit
 def wavewidth2vel(width, lincenter=4861.0):
 
   return width/lincenter * 3e5 # in km/s
@@ -84,7 +88,7 @@ def get_mean_rms(prof, err, axis=0, weight="uniform", return_err=False):
     return mean, mean_err, rms, rms_err
 
 def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=None, 
-                    doplot=False, return_full=False, flag_warning=False):
+                    doplot=False, return_full=False, ignore_warning=False):
   """
   calculate line widths from a given profile
 
@@ -162,14 +166,21 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
     raise ValueError("starting and ending fluxes are larger than half of peak flux, \
                      try to adjust the wavelength window.")
   
-  flux_sub = prof_win - 0.5*fmax
-  df_sign = np.zeros(len(wave_win))
-  df_sign[1:] = np.sign(flux_sub[1:]*flux_sub[0:-1])
-  df_sign[0] = df_sign[1] 
-  idx_sign = np.where(df_sign<=0)[0]
+  # flux_sub = prof_win - 0.5*fmax
+  # df_sign = np.zeros(len(wave_win))
+  # df_sign[1:] = np.sign(flux_sub[1:]*flux_sub[0:-1])
+  # df_sign[0] = df_sign[1] 
+  # idx_sign = np.where(df_sign<=0)[0]
+  # neq = np.count_nonzero(prof_win == 0.5*fmax)
+  # if len(idx_sign) > 2 + neq:
   
-  neq = np.count_nonzero(prof_win == 0.5*fmax)
-  if len(idx_sign) > 2 + neq:
+  idx_above = np.where(prof_win >= 0.5*fmax)[0]
+  idx_below_left = idx_above[0] -1 
+  idx_below_right = idx_above[-1] + 1
+  
+  # check if there are points below 0.5fmax within the leftmost and rightmost above region.
+  idx_below = np.where((prof_win < 0.5*fmax) & (wave_win >= wave_win[idx_above[0]]) & (wave_win <= wave_win[idx_above[-1]]))[0]
+  if len(idx_below > 0):
     # print(neq, idx_sign)
     # plt.plot(wave_win, prof_win)
     # plt.axhline(y=fmax)
@@ -177,15 +188,25 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
     # plt.show() 
     print("Warning: profile is multiple peaked.")
     
+    idx_below_left_all = np.where(idx_below < imax)[0]
+    if idx_below_left_all.shape[0] > 0:
+      # right most point
+      idx_below_left = idx_below[idx_below_left_all[-1]]  
+    
+    idx_below_right_all = np.where(idx_below > imax)[0]
+    if idx_below_right_all.shape[0] > 0:
+      # left most point
+      idx_below_right = idx_below[idx_below_right_all[0]]
+
     # note: if flag_warning is flase,
     # for mulitple peaked profile, numpy interpolates to narrowest line widths.
-    if flag_warning == True:
+    if ignore_warning == False:
       raise ValueError("profile in the window is multiple peaked, adjust the window.")
   
   # now determine the widths
   # get fwhm
-  wl = np.interp(fmax*0.5, prof_win[:imax], wave_win[:imax])
-  wr = np.interp(fmax*0.5, prof_win[-1:imax:-1], wave_win[-1:imax:-1])
+  wl = np.interp(fmax*0.5, prof_win[idx_below_left:imax], wave_win[idx_below_left:imax])
+  wr = np.interp(fmax*0.5, prof_win[idx_below_right:imax:-1], wave_win[idx_below_right:imax:-1])
   fwhm = wr-wl
   
   # get sigma 
