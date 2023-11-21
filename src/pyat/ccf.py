@@ -2,9 +2,11 @@
 __all__ = ["iccf", "iccf_mc"]
 
 import numpy as np
+from numba import jit, njit
 import matplotlib.pyplot as plt
 #import piccf_mc
 
+@njit
 def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
          threshold=0.8, mode="multiple",ignore_warning=False):
   """
@@ -24,14 +26,14 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
     t1_intp = t1[idx]
     f1_intp = f1[idx]
     f2_intp = np.interp(t1_intp, t2-taui, f2)
-    ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp, ddof=0) * np.std(f2_intp, ddof=0))
+    ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
 
     # second interpolate f1
     idx = np.where((t2>=t1[0]+taui) & (t2<=t1[-1]+taui))[0]
     t2_intp = t2[idx]
     f2_intp = f2[idx]
     f1_intp = np.interp(t2_intp, t1+taui, f1)
-    ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp, ddof=0) * np.std(f2_intp, ddof=0))
+    ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
 
     # use average
     ccf[i] = 0.5*(ccf12+ccf21)
@@ -47,14 +49,14 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 
   if not ignore_warning:
     if idx_above[0] == 0:
-      plt.plot(tau, ccf)
-      plt.axhline(y=ccf_peak*threshold, ls='--')
-      plt.show()
+      # plt.plot(tau, ccf)
+      # plt.axhline(y=ccf_peak*threshold, ls='--')
+      # plt.show()
       raise ValueError("tau_beg is too large to cover the region with ccf>threshold*ccf_peak.")
     if idx_above[-1] == ntau-1:
-      plt.plot(tau, ccf)
-      plt.axhline(y=ccf_peak*threshold, ls='--')
-      plt.show()
+      # plt.plot(tau, ccf)
+      # plt.axhline(y=ccf_peak*threshold, ls='--')
+      # plt.show()
       raise ValueError("tau_end is too small to cover the region with ccf>threshold*ccf_peak.")
     
   if mode == "multiple":

@@ -2,20 +2,16 @@ __all__ = ["get_mean_rms", "get_line_widths"]
 
 import numpy as np
 import copy
-from numba import njit
 import matplotlib.pyplot as plt 
 
-@njit
 def wave2vel(wave, linecenter=4861.0):
   
   return (wave - linecenter)/linecenter * 3e5  # in km/s
 
-@njit
 def vel2wave(vel, linecenter=4861.0):
   
   return (1.0 + vel/3e5) * linecenter
 
-@njit
 def wavewidth2vel(width, lincenter=4861.0):
 
   return width/lincenter * 3e5 # in km/s
