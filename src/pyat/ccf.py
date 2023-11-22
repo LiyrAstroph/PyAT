@@ -17,7 +17,11 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 
   tau = np.linspace(tau_beg, tau_end, ntau)
   ccf = np.zeros(ntau)
-
+  
+  if t2[0] > t1[-1] or t1[0] > t2[-1]:
+    print("no overlap, set ccf to zero.")
+    return tau, ccf, -10.0, 0.0, 0.0
+  
   for i in range(ntau):
     taui = tau[i]
 
@@ -42,6 +46,10 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
   imax = np.where(ccf == np.max(ccf))[0][-1]
   tau_peak = tau[imax]
   ccf_peak = ccf[imax]
+
+  if ccf_peak < 0.0:
+    print("negative ccf peak!")
+    return tau, ccf, ccf_peak, tau_peak, 0.0
   
   # centrod tau
   # points larger than a threshold
@@ -64,6 +72,10 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
     tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
   
   else:
+    
+    # only one point
+    if idx_above.shape[0] == 1:
+      return tau, ccf, ccf_peak, tau_peak, tau_peak
 
     # first check if there are multiple peaks
     dtau_idx = np.zeros(idx_above.shape[0])
@@ -173,8 +185,10 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end,
   # #plt.hist(tau_peak_mc, density=True)
   # plt.hist(tau_cent_mc, alpha=0.5, density=True, range=[-100, 500])
   # plt.show()
-
-  return ccf_peak_mc, tau_peak_mc, tau_cent_mc
+  
+  # only use positive peaks
+  idx = np.where(ccf_peak_mc > 0.0)[0]
+  return ccf_peak_mc[idx], tau_peak_mc[idx], tau_cent_mc[idx]
 
 
 

@@ -177,7 +177,6 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   # check if there are points below 0.5fmax within the leftmost and rightmost above region.
   idx_below = np.where((prof_win < 0.5*fmax) & (wave_win >= wave_win[idx_above[0]]) & (wave_win <= wave_win[idx_above[-1]]))[0]
   if idx_below.shape[0] > 0:
-    # print(neq, idx_sign)
     # plt.plot(wave_win, prof_win)
     # plt.axhline(y=fmax)
     # plt.axhline(y=0.5*fmax)
