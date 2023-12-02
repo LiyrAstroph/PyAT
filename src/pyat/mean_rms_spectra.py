@@ -159,8 +159,11 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
 
   # first make sure the first and last bin has small flux
   if prof_win[0] > 0.5*fmax or prof_win[-1] > 0.5*fmax:
-    raise ValueError("starting and ending fluxes are larger than half of peak flux, \
-                     try to adjust the wavelength window.")
+    if ignore_warning == True:
+      print("Warning: starting and ending fluxes are larger than half of peak flux")
+    else:
+      raise ValueError("starting and ending fluxes are larger than half of peak flux, \
+                        try to adjust the wavelength window.")
   
   # flux_sub = prof_win - 0.5*fmax
   # df_sign = np.zeros(len(wave_win))
@@ -171,8 +174,8 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
   # if len(idx_sign) > 2 + neq:
   
   idx_above = np.where(prof_win >= 0.5*fmax)[0]
-  idx_below_left = idx_above[0] -1 
-  idx_below_right = idx_above[-1] + 1
+  idx_below_left = np.max((0, idx_above[0] -1))
+  idx_below_right = np.min((prof_win.shape[0], idx_above[-1] + 1))
   
   # check if there are points below 0.5fmax within the leftmost and rightmost above region.
   idx_below = np.where((prof_win < 0.5*fmax) & (wave_win >= wave_win[idx_above[0]]) & (wave_win <= wave_win[idx_above[-1]]))[0]
