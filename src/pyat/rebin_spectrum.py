@@ -155,7 +155,7 @@ def rebin_spectrum_with_error(wave_rebin, wave, prof, error):
       # midle bins
       for j in range(idx_left, idx_right-1):
         flux += prof[j] * (wave_edge[j+1] - wave_edge[j])
-        err  += error[j]**2 * (wave_edge[j+1] - wave_edge[j])
+        err  += error[j]**2 * (wave_edge[j+1] - wave_edge[j])**2
       # rightmost bin
       idx = max(0, min(len(wave)-1, idx_right-1)) # make sure idx in the approprite range 
       flux += (wave_rebin_edge[i+1] - wave_edge[idx_right-1]) * prof[idx]
