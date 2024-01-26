@@ -26,20 +26,42 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 
     # first interpolate f2
     idx = np.where((t1>=t2[0]-taui) & (t1<=t2[-1]-taui))[0]
-    t1_intp = t1[idx]
-    f1_intp = f1[idx]
-    f2_intp = np.interp(t1_intp, t2-taui, f2)
-    ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+    if len(idx) > 1:
+      t1_intp = t1[idx]
+      f1_intp = f1[idx]
+      f2_intp = np.interp(t1_intp, t2-taui, f2)
+      std1 = np.std(f1_intp)
+      std2 = np.std(f2_intp)
+      if std1 * std2 > 0.0:
+        ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        w12 = 1.0
+      else:
+        ccf12 = 0.0
+        w12 = 0.0
+    else:
+      ccf12 = 0.0
+      w12 = 0.0
 
     # second interpolate f1
     idx = np.where((t2>=t1[0]+taui) & (t2<=t1[-1]+taui))[0]
-    t2_intp = t2[idx]
-    f2_intp = f2[idx]
-    f1_intp = np.interp(t2_intp, t1+taui, f1)
-    ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+    if len(idx) > 1:
+      t2_intp = t2[idx]
+      f2_intp = f2[idx]
+      f1_intp = np.interp(t2_intp, t1+taui, f1)
+      std1 = np.std(f1_intp)
+      std2 = np.std(f2_intp)
+      if std1 * std2 > 0.0:
+        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        w21 = 1.0
+      else:
+        ccf21 = 0.0
+        w21 = 0.0
+    else:
+      ccf21 = 0.0
+      w21 = 0.0
 
     # use average
-    ccf[i] = 0.5*(ccf12+ccf21)
+    ccf[i] = (ccf12+ccf21)/(w12+w21 + 1.0e-10) # ensure a nozero denominator
   
   # peak tau, if there are multiple occurence of peaks, using the rightmost one.
   imax = np.where(ccf == np.max(ccf))[0][-1]
@@ -156,20 +178,42 @@ def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 
     # first interpolate f2
     idx = np.where((t1>=t2[0]-taui) & (t1<=t2[-1]-taui))[0]
-    t1_intp = t1[idx]
-    f1_intp = f1[idx]
-    f2_intp = np.interp(t1_intp, t2-taui, f2)
-    ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+    if len(idx) > 1:  
+      t1_intp = t1[idx]
+      f1_intp = f1[idx]
+      f2_intp = np.interp(t1_intp, t2-taui, f2)
+      std1 = np.std(f1_intp)
+      std2 = np.std(f2_intp)
+      if std1 * std2 > 0.0:
+        ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        w12 = 1.0
+      else:
+        ccf12 = 0.0
+        w12 = 0.0
+    else:
+      ccf12 = 0.0
+      w12 = 0.0
 
     # second interpolate f1
     idx = np.where((t2>=t1[0]+taui) & (t2<=t1[-1]+taui))[0]
-    t2_intp = t2[idx]
-    f2_intp = f2[idx]
-    f1_intp = np.interp(t2_intp, t1+taui, f1)
-    ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+    if len(idx) > 1:
+      t2_intp = t2[idx]
+      f2_intp = f2[idx]
+      f1_intp = np.interp(t2_intp, t1+taui, f1)
+      std1 = np.std(f1_intp)
+      std2 = np.std(f2_intp)
+      if std1 * std2 > 0.0:
+        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        w21 = 1.0
+      else:
+        ccf21 = 0.0
+        w21 = 0.0
+    else:
+      ccf21 = 0.0
+      w21 = 0.0
 
     # use average
-    ccf[i] = 0.5*(ccf12+ccf21)
+    ccf[i] = (ccf12+ccf21)/(w12+w21 + 1.0e-10) # ensure a nozero denominator
   
   # peak tau, if there are multiple occurence of peaks, using the rightmost one.
   imax = np.where(ccf == np.max(ccf))[0][-1]
@@ -272,6 +316,8 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end,
   """
   print("doing MC simulation, waiting for a while...")
   ccf_peak_mc, tau_peak_mc, tau_cent_mc = np.zeros((3, nsim))
+
+  np.random.seed(100)
 
   for i in range(nsim):
     if i%(nsim/10) == 0:
