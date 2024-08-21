@@ -125,7 +125,10 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
     prof_sub[:] -= con_sub
   
   # extract the line region
-  idx = np.where((wave>=line_win[0]) & (wave<=line_win[1]))[0]
+  if line_win is None:
+    idx = np.arange(len(wave))
+  else:
+    idx = np.where((wave>=line_win[0]) & (wave<=line_win[1]))[0]
   wave_win = wave[idx]
   prof_win = prof_sub[idx]
   
