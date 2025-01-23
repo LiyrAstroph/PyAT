@@ -27,7 +27,7 @@ def remove_outliers(t, y, yerr, size=1, limit=10):
   idx : 1D array like
       Indexes of outlers
   """
-  ys = ndimage.median_filter(y, size=size, mode='neareast')
+  ys = ndimage.median_filter(y, size=size, mode='nearest')
   std = np.abs(y-ys)/yerr 
   idx = np.where(std>=limit)[0]
   return np.delete(t, idx),np.delete(y, idx), np.delete(yerr, idx), idx
