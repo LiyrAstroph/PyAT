@@ -10,6 +10,10 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
          threshold=0.8, mode="multiple",ignore_warning=False):
   """
   Interpolated CCF
+
+  Returns:
+  --------
+    tau, ccf, ccf_peak, tau_peak, tau_cent
   """
   if mode not in ["multiple", "single"]:
     raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!")
@@ -161,6 +165,10 @@ def iccf_oneway(t1, f1, t2, f2, ntau, tau_beg, tau_end,
          threshold=0.8, mode="multiple",ignore_warning=False):
   """
   Interpolated CCF
+
+  Return:
+  -------
+    tau, ccf, ccf_peak, tau_peak, tau_cent
   """
   if mode not in ["multiple", "single"]:
     raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!")
