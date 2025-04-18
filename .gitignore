@@ -8,3 +8,7 @@ src/pyat/*
 !src/pyat/*.py
 !.gitignore
 docs
+!test/
+!test/test.py
+!test/lightcurve*.txt
+!text/spectrum_example.txt
