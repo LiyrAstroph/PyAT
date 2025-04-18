@@ -11,7 +11,7 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
   """
   Interpolated CCF
 
-  Returns:
+  Returns
   --------
     tau, ccf, ccf_peak, tau_peak, tau_cent
   """
@@ -164,7 +164,8 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 def iccf_oneway(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
          threshold=0.8, mode="multiple",ignore_warning=False):
   """
-  Interpolated CCF
+  Interpolated CCF. 
+  Only do interpolation on one the driving light curve.
 
   Return:
   -------
@@ -581,12 +582,15 @@ def iccf_oneway_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
             nsim=1000, threshold=0.8, mode="multiple", ignore_warning=False):
   """
-  do mc simulation
+  Do mc simulation using the FR/RSS method (Peterson et al. 1998, ApJ, PASP, 110, 660).
+
+  Returns
+  -------
+    ccf_peak_mc, tau_peak_mc, tau_cent_mc
+
   """
   print("doing MC simulation, waiting for a while...")
   ccf_peak_mc, tau_peak_mc, tau_cent_mc = np.zeros((3, nsim))
-
-  np.random.seed(100)
 
   for i in range(nsim):
     if i%(nsim/10) == 0:
@@ -637,12 +641,16 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end,
 def iccf_mc_oneway(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
                    nsim=1001, threshold=0.8, mode="multiple", ignore_warning=False):
   """
-  do mc simulation
+  Do mc simulation using the FR/RSS method (Peterson et al. 1998, ApJ, PASP, 110, 660).
+  Only do interpolation on the driving light curve.
+
+  Returns
+  -------
+    ccf_peak_mc, tau_peak_mc, tau_cent_mc
+
   """
   print("doing MC simulation, waiting for a while...")
   ccf_peak_mc, tau_peak_mc, tau_cent_mc = np.zeros((3, nsim))
-
-  np.random.seed(100)
 
   for i in range(nsim):
     if i%(nsim/10) == 0:
