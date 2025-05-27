@@ -13,4 +13,5 @@ the following procedures
 - Rebin spectra by keeping the total flux unchanged;
 - Calculate interpolated cross-correlation function (ICCF);
 - Reconstruct light curves using damped random walk model;
-- Detrend light curves using a linear detrend.
+- Detrend light curves using a linear trend;
+- AGN spectral templates (Glikman et al. 2006; Vanden Berk et al. 2001);

@@ -127,8 +127,24 @@ def test_detrend():
   plt.plot(data[:, 0], y, ls='--')
   plt.show()
 
+def test_loadtemplate():
+  from pyat import load_template
+  
+  template = load_template("AGN_NIR")
+  
+  plt.plot(template[:, 0], template[:, 1], label='AGN NIR')
+  template = load_template("AGN_SDSS")
+  print(template)
+  plt.show() 
+
+  plt.plot(template[:, 0], template[:, 1], label='AGN SDSS')
+  plt.show()
+  
+
 if __name__ == "__main__":
   
+  test_loadtemplate()
+
   test_syserr()
   
   test_line_widths()

@@ -5,7 +5,9 @@ __all__ = ["remove_outliers",
            "rebin_spectrum", "rebin_spectrum_with_error", "get_bin_edge",
            "iccf", "iccf_oneway", "iccf_mc", "iccf_mc_oneway",
            "drw_recon", 
-           "detrend"]
+           "detrend",
+           "renin", "rebin_sig",
+           "load_template"]
 
 from pyat.remove_outliers import remove_outliers
 from pyat.format_mica import format_mica
@@ -15,3 +17,5 @@ from pyat.rebin_spectrum import rebin_spectrum, rebin_spectrum_with_error, get_b
 from pyat.ccf import iccf, iccf_oneway, iccf_mc, iccf_mc_oneway
 from pyat.drw import drw_recon
 from pyat.detrend import detrend
+from pyat.rebin import rebin, rebin_sig
+from pyat.loadtemplate import load_template
