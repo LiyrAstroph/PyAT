@@ -7,7 +7,8 @@ __all__ = ["remove_outliers",
            "drw_recon", 
            "detrend",
            "renin", "rebin_sig",
-           "load_template"]
+           "load_template", "list_templates"]
+# Developed by Yan-Rong Li, liyanrong@ihep.ac.cn
 
 from pyat.remove_outliers import remove_outliers
 from pyat.format_mica import format_mica
@@ -18,4 +19,4 @@ from pyat.ccf import iccf, iccf_oneway, iccf_mc, iccf_mc_oneway
 from pyat.drw import drw_recon
 from pyat.detrend import detrend
 from pyat.rebin import rebin, rebin_sig
-from pyat.loadtemplate import load_template
+from pyat.loadtemplate import load_template, list_templates

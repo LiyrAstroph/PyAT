@@ -5,7 +5,7 @@
 # 2023-08-31
 #===============================================
 
-__all__ = ["load_template"]
+__all__ = ["load_template", "list_templates"]
 
 import os 
 import numpy as np
@@ -43,3 +43,21 @@ def load_template(template_name):
     temp = np.column_stack((data.columns[0].data, data.columns[1].data, data.columns[2].data))
 
     return temp 
+
+def list_templates():   
+    """
+    List available templates in the 'template' directory.
+
+    Returns
+    -------
+    list
+        A list of available template names.
+    """
+    temp = ["AGN_NIR", "AGN_SDSS"]
+    name = ["AGN Spectrum in NIR (Glikman et al. 2006)", 
+            "AGN Spectrum from SDSS (Van Denberk et al. 2001)"]
+
+    for i in range(len(temp)):
+        print(f"{temp[i]}: {name[i]}")
+
+    return temp
