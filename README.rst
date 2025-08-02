@@ -3,7 +3,8 @@ PyAT
 
 **Py**\ thon **A**\ stronomical **T**\ ools.
 
-A package providing useful tools for astronomical analysis.  It is in continuous developing and  presently provides 
+PyAT is a package providing useful tools for astronomical analysis.
+It is in a state of continuous development and currently provides
 the following procedures
 
 - Estimate the systematic error of a light curve;
@@ -15,3 +16,5 @@ the following procedures
 - Reconstruct light curves using damped random walk model;
 - Detrend light curves using a linear trend;
 - AGN spectral templates (Glikman et al. 2006; Vanden Berk et al. 2001);
+- Merge spectral segments.
+  
