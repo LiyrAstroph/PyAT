@@ -8,6 +8,7 @@ __all__ = ["remove_outliers",
            "detrend",
            "renin", "rebin_sig",
            "load_template", "list_templates",
+           "load_sed", "list_seds",
            "spec_merge"]
 # Developed by Yan-Rong Li, liyanrong@ihep.ac.cn
 
@@ -22,3 +23,4 @@ from pyat.detrend import detrend
 from pyat.rebin import rebin, rebin_sig
 from pyat.loadtemplate import load_template, list_templates
 from pyat.spec_merge import spec_merge
+from pyat.loadsed import load_sed, list_seds

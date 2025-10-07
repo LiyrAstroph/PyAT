@@ -1,3 +1,10 @@
+#===============================================
+# Python Astronomical Tools
+#
+# Developed by Yan-Rong Li, liyanrong@ihep.ac.cn
+# 2023-08-31
+#===============================================
+
 __all__ = ["spec_merge",]
 
 import numpy as np
