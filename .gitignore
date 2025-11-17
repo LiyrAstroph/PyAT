@@ -6,6 +6,8 @@ src/*
 !src/pyat
 src/pyat/*
 !src/pyat/*.py
+!src/pyat/*.pyx
+!src/pyat/*.pxd
 !.gitignore
 docs
 !test/
