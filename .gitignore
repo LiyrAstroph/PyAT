@@ -1,5 +1,6 @@
 *.*
 !README.rst
+!pyproject.toml
 !setup.py
 !src/
 src/*
