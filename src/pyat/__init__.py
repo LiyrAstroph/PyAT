@@ -9,7 +9,8 @@ __all__ = ["remove_outliers",
            "renin", "rebin_sig",
            "load_template", "list_templates",
            "load_sed", "list_seds",
-           "spec_merge"]
+           "spec_merge",
+           "cosmology"]
 # Developed by Yan-Rong Li, liyanrong@ihep.ac.cn
 
 from pyat.remove_outliers import remove_outliers
@@ -24,3 +25,4 @@ from pyat.rebin import rebin, rebin_sig
 from pyat.loadtemplate import load_template, list_templates
 from pyat.spec_merge import spec_merge
 from pyat.loadsed import load_sed, list_seds
+from pyat.cosmology import cosmology
