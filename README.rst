@@ -4,7 +4,7 @@ PyAT
 **Py**\ thon **A**\ stronomical **T**\ ools.
 
 PyAT is a package providing useful tools for astronomical analysis.
-It is in a state of continuous development and currently provides
+It is in continuous development and currently provides
 the following procedures
 
 - Estimate the systematic error of a light curve;
@@ -18,4 +18,12 @@ the following procedures
 - AGN spectral templates (Glikman et al. 2006; Vanden Berk et al. 2001);
 - Quasar spectral energy distribution templates (Elvis et al. 1994; Shang et al. 2011);
 - Merge spectral segments.
+
+To install PyAT, use the terminal command 
+
+.. code-block:: python
+    
+    python setup.py install --user
+    # or
+    python -m pip install .
   
