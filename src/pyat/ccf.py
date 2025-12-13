@@ -411,25 +411,30 @@ def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
         imax_right = imax_right_all[0]
       else:
         imax_right = ntau
+      
+      # only contain one point
+      if imax_right - imax_left == 1:
+        tau_cent = tau_peak
 
-      ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
-      ccf_norm = np.sum(ccf[imax_left+1:imax_right])
+      else:
+        ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
+        ccf_norm = np.sum(ccf[imax_left+1:imax_right])
 
-      # left cross point
-      # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
-      # ccf_sum  += threshold*ccf_peak * tau_cross_left
-      # ccf_norm += threshold*ccf_peak
+        # left cross point
+        # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
+        # ccf_sum  += threshold*ccf_peak * tau_cross_left
+        # ccf_norm += threshold*ccf_peak
 
-      # right cross point
-      # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
-      # ccf_sum  += threshold*ccf_peak * tau_cross_right
-      # ccf_norm += threshold*ccf_peak
+        # right cross point
+        # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
+        # ccf_sum  += threshold*ccf_peak * tau_cross_right
+        # ccf_norm += threshold*ccf_peak
 
-      tau_cent = ccf_sum/ccf_norm
+        tau_cent = ccf_sum/(ccf_norm + 1.0e-10)
 
     else:  # singlely peaked
 
-      tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
+      tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/(np.sum(ccf[idx_above]) + 1.0e-10)
 
   # plt.plot(tau, ccf, marker='o', markersize=2)
   # plt.axhline(y=ccf_peak)
@@ -542,25 +547,29 @@ def iccf_oneway_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
         imax_right = imax_right_all[0]
       else:
         imax_right = ntau
+      
+       # only contain one point
+      if imax_right - imax_left == 1:
+        tau_cent = tau_peak
+      else:
+        ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
+        ccf_norm = np.sum(ccf[imax_left+1:imax_right])
 
-      ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
-      ccf_norm = np.sum(ccf[imax_left+1:imax_right])
+        # left cross point
+        # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
+        # ccf_sum  += threshold*ccf_peak * tau_cross_left
+        # ccf_norm += threshold*ccf_peak
 
-      # left cross point
-      # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
-      # ccf_sum  += threshold*ccf_peak * tau_cross_left
-      # ccf_norm += threshold*ccf_peak
+        # right cross point
+        # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
+        # ccf_sum  += threshold*ccf_peak * tau_cross_right
+        # ccf_norm += threshold*ccf_peak
 
-      # right cross point
-      # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
-      # ccf_sum  += threshold*ccf_peak * tau_cross_right
-      # ccf_norm += threshold*ccf_peak
-
-      tau_cent = ccf_sum/ccf_norm
+        tau_cent = ccf_sum/(ccf_norm+1.0e-10)
 
     else:  # singlely peaked
 
-      tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
+      tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/(np.sum(ccf[idx_above])+1.0e-10)
 
   # plt.plot(tau, ccf, marker='o', markersize=2)
   # plt.axhline(y=ccf_peak)
