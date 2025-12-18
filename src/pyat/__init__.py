@@ -10,7 +10,8 @@ __all__ = ["remove_outliers",
            "load_template", "list_templates",
            "load_sed", "list_seds",
            "spec_merge",
-           "cosmology"]
+           "cosmology",
+           "smooth_savgol"]
 # Developed by Yan-Rong Li, liyanrong@ihep.ac.cn
 
 from pyat.remove_outliers import remove_outliers
@@ -26,3 +27,4 @@ from pyat.loadtemplate import load_template, list_templates
 from pyat.spec_merge import spec_merge
 from pyat.loadsed import load_sed, list_seds
 from pyat.cosmology import cosmology
+from pyat.filter import smooth_savgol

@@ -17,7 +17,9 @@ the following procedures
 - Detrend light curves using a linear trend;
 - AGN spectral templates (Glikman et al. 2006; Vanden Berk et al. 2001);
 - Quasar spectral energy distribution templates (Elvis et al. 1994; Shang et al. 2011);
-- Merge spectral segments.
+- Merge spectral segments;
+- Smooth data using Savitzky-Golay filter;
+- Cosmological calculations.
 
 To install PyAT, use the terminal command 
 
