@@ -25,5 +25,5 @@ setup(
     package_dir={'pyat':'src/pyat', 'pyat.template':'template'},
     package_data={"pyat.template": ["*.txt"]},
     ext_modules = extensions,
-    install_requires=["numpy","scipy","numba"],
+    install_requires=["numpy","scipy","numba","celerite","corner","emcee","astropy"],
 )
