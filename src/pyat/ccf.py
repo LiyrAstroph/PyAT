@@ -16,7 +16,7 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
     tau, ccf, ccf_peak, tau_peak, tau_cent
   """
   if mode not in ["multiple", "single"]:
-    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!")
+    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
 
   tau = np.linspace(tau_beg, tau_end, ntau)
   ccf = np.zeros(ntau)
@@ -37,7 +37,7 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       std1 = np.std(f1_intp)
       std2 = np.std(f2_intp)
       if std1 * std2 > 0.0:
-        ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (std1*std2)
         w12 = 1.0
       else:
         ccf12 = 0.0
@@ -55,7 +55,7 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       std1 = np.std(f1_intp)
       std2 = np.std(f2_intp)
       if std1 * std2 > 0.0:
-        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (std1*std2)
         w21 = 1.0
       else:
         ccf21 = 0.0
@@ -172,7 +172,7 @@ def iccf_oneway(t1, f1, t2, f2, ntau, tau_beg, tau_end,
     tau, ccf, ccf_peak, tau_peak, tau_cent
   """
   if mode not in ["multiple", "single"]:
-    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!")
+    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
 
   tau = np.linspace(tau_beg, tau_end, ntau)
   ccf = np.zeros(ntau)
@@ -193,7 +193,7 @@ def iccf_oneway(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       std1 = np.std(f1_intp)
       std2 = np.std(f2_intp)
       if std1 * std2 > 0.0:
-        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (std1*std2)
       else:
         ccf21 = 0.0
     else:
@@ -303,7 +303,7 @@ def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
   Interpolated CCF
   """
   if mode not in ["multiple", "single"]:
-    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!")
+    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
 
   tau = np.linspace(tau_beg, tau_end, ntau)
   ccf = np.zeros(ntau)
@@ -324,7 +324,7 @@ def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       std1 = np.std(f1_intp)
       std2 = np.std(f2_intp)
       if std1 * std2 > 0.0:
-        ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        ccf12 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (std1*std2)
         w12 = 1.0
       else:
         ccf12 = 0.0
@@ -342,7 +342,7 @@ def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       std1 = np.std(f1_intp)
       std2 = np.std(f2_intp)
       if std1 * std2 > 0.0:
-        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (std1*std2)
         w21 = 1.0
       else:
         ccf21 = 0.0
@@ -460,7 +460,7 @@ def iccf_oneway_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
   Interpolated CCF
   """
   if mode not in ["multiple", "single"]:
-    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!")
+    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
 
   tau = np.linspace(tau_beg, tau_end, ntau)
   ccf = np.zeros(ntau)
@@ -481,7 +481,7 @@ def iccf_oneway_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       std1 = np.std(f1_intp)
       std2 = np.std(f2_intp)
       if std1 * std2 > 0.0:
-        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (np.std(f1_intp) * np.std(f2_intp))
+        ccf21 = np.mean((f1_intp - np.mean(f1_intp))*(f2_intp - np.mean(f2_intp))) / (std1*std2)
       else:
         ccf21 = 0.0
     else:
