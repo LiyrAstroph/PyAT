@@ -11,10 +11,9 @@ from glob import glob
 import os
 
 basedir = os.path.dirname(os.path.abspath(__file__))
-src = glob(os.path.join(basedir, "src/pyat", "*.pyx"))
 
 extensions = [
-    Extension(name="pyat.rebin", sources=src),
+    Extension(name="pyat.rebin", sources=glob(os.path.join(basedir, "src/pyat", "rebin.pyx"))),
 ]
 
 setup(
