@@ -23,7 +23,43 @@ cpdef iccf(
   str mode="multiple", 
   bint ignore_warning=False):
   """
-  python interface for iccf 
+  Python interface for interpolated cross-correlation function 
+
+  Parameters
+  ----------
+  t1 : numpy array
+    time of first light curve
+  f1 : numpy array 
+    flux of first light curve
+  t2 : numpy array
+    time of second light curve
+  f2 : numpy array 
+    flux of second light curve
+  ntau : int
+    number of time lag point
+  tau_beg : double 
+    starting time lag
+  tau_end : double
+    ending time lag 
+  threshold : double 
+    fraction threshold of peak cross-correlation coefficient for computing centroid time lag
+  mode : string 
+    a string indicates whether using single peak or multiple peaks to compute centroid time lag 
+  ignore_warning : bool
+    whether ignore warnings
+
+  Returns
+  -------
+  tau : numpy array
+       time lag array
+  ccf : numpy array
+       cross-correlation coefficient array
+  rmax : double
+       peak cross-correlation coefficient
+  tau_peak :
+       peak time lag
+  tau_cent :
+       centroid time lag
   """
   
   if mode not in ["multiple", "single"]:
@@ -98,7 +134,45 @@ cpdef iccf_mc(
   str mode="multiple", 
   bint ignore_warning=False):
   """
-  ICCF monte carlo
+  Do Monte Carlo simulation using the FR/RSS method (Peterson et al. 1998, ApJ, PASP, 110, 660).
+  
+  Parameters
+  ----------
+  t1 : numpy array
+    time of first light curve
+  f1 : numpy array 
+    flux of first light curve
+  e1 : numpy array 
+    error of first light curve
+  t2 : numpy array
+    time of second light curve
+  f2 : numpy array 
+    flux of second light curve
+  e3 : numpy array 
+    error of second light curve
+  ntau : int
+    number of time lag point
+  tau_beg : double 
+    starting time lag
+  tau_end : double
+    ending time lag 
+  nsim : int 
+    number of simulations
+  threshold : double 
+    fraction threshold of peak cross-correlation coefficient for computing centroid time lag
+  mode : string 
+    a string indicates whether using single peak or multiple peaks to compute centroid time lag 
+  ignore_warning : bool
+    whether ignore warnings
+  
+  Returns
+  -------
+  ccf_peak_mc : numpy array 
+    Monte Carlo sample of ccf peak 
+  tau_peak_mc : numpy array 
+    Monte Carlo sample of peak time lag 
+  tau_cent_mc : numpy array 
+    Monte Carlo sample of centroid time lag
   """
   
   if mode not in ["multiple", "single"]:
@@ -170,9 +244,45 @@ cpdef iccf_oneway(
   double threshold=0.8, 
   str mode="multiple", 
   bint ignore_warning=False):
-
   """
-  one-way ICCF
+  Python interface for one-way interpolated cross-correlation function.
+  The first light curve is interpolated. 
+
+  Parameters
+  ----------
+  t1 : numpy array
+    time of first light curve
+  f1 : numpy array 
+    flux of first light curve
+  t2 : numpy array
+    time of second light curve
+  f2 : numpy array 
+    flux of second light curve
+  ntau : int
+    number of time lag point
+  tau_beg : double 
+    starting time lag
+  tau_end : double
+    ending time lag 
+  threshold : double 
+    fraction threshold of peak cross-correlation coefficient for computing centroid time lag
+  mode : string 
+    a string indicates whether using single peak or multiple peaks to compute centroid time lag 
+  ignore_warning : bool
+    whether ignore warnings
+
+  Returns
+  -------
+  tau : numpy array
+       time lag array
+  ccf : numpy array
+       cross-correlation coefficient array
+  rmax : double
+       peak cross-correlation coefficient
+  tau_peak :
+       peak time lag
+  tau_cent :
+       centroid time lag
   """
 
   if mode not in ["multiple", "single"]:
@@ -247,7 +357,46 @@ cpdef iccf_mc_oneway(
   str mode="multiple", 
   bint ignore_warning=False):
   """
-  one-way ICCF monte carlo
+  Do Monte Carlo simulation using the FR/RSS method (Peterson et al. 1998, ApJ, PASP, 110, 660).
+  Only do interpolation on the driving light curve.
+
+  Parameters
+  ----------
+  t1 : numpy array
+    time of first light curve
+  f1 : numpy array 
+    flux of first light curve
+  e1 : numpy array 
+    error of first light curve
+  t2 : numpy array
+    time of second light curve
+  f2 : numpy array 
+    flux of second light curve
+  e3 : numpy array 
+    error of second light curve
+  ntau : int
+    number of time lag point
+  tau_beg : double 
+    starting time lag
+  tau_end : double
+    ending time lag 
+  nsim : int 
+    number of simulations
+  threshold : double 
+    fraction threshold of peak cross-correlation coefficient for computing centroid time lag
+  mode : string 
+    a string indicates whether using single peak or multiple peaks to compute centroid time lag 
+  ignore_warning : bool
+    whether ignore warnings
+  
+  Returns
+  -------
+  ccf_peak_mc : numpy array 
+    Monte Carlo sample of ccf peak 
+  tau_peak_mc : numpy array 
+    Monte Carlo sample of peak time lag 
+  tau_cent_mc : numpy array 
+    Monte Carlo sample of centroid time lag
   """
   
   if mode not in ["multiple", "single"]:
