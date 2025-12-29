@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 #import piccf_mc
 
 def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
-         threshold=0.8, mode="multiple",ignore_warning=False):
+         threshold=0.8, mode="multiple", ignore_warning=False):
   """
   Interpolated CCF
 
@@ -298,12 +298,12 @@ def iccf_oneway(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 
 @njit
 def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
-         threshold=0.8, mode="multiple",ignore_warning=False):
+         threshold=0.8, mode="multiple", ignore_warning=False):
   """
   Interpolated CCF
   """
   if mode not in ["multiple", "single"]:
-    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
+    raise ValueError("mode is not recognized! use 'multiple' or 'single'!")
 
   tau = np.linspace(tau_beg, tau_end, ntau)
   ccf = np.zeros(ntau)
@@ -460,7 +460,7 @@ def iccf_oneway_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
   Interpolated CCF
   """
   if mode not in ["multiple", "single"]:
-    raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
+    raise ValueError("mode is not recognized! use 'multiple' or 'single'!")
 
   tau = np.linspace(tau_beg, tau_end, ntau)
   ccf = np.zeros(ntau)
