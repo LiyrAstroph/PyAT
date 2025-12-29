@@ -104,7 +104,7 @@ def iccf_slow(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       idx_above_max = np.where(idx_above == imax)[0][0]
 
       #go right 
-      idx_right = idx_above.shape[0]
+      idx_right = idx_above.shape[0]-1
       for i in range(idx_above_max+1, idx_above.shape[0]):
         if idx_above[i] - idx_above[i-1] > 1:
           idx_right = i-1
@@ -215,7 +215,7 @@ def iccf_oneway_slow(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       idx_above_max = np.where(idx_above == imax)[0][0]
 
       #go right 
-      idx_right = idx_above.shape[0]
+      idx_right = idx_above.shape[0]-1
       for i in range(idx_above_max+1, idx_above.shape[0]):
         if idx_above[i] - idx_above[i-1] > 1:
           idx_right = i-1
@@ -343,7 +343,7 @@ def iccf_numba_slow(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       idx_above_max = np.where(idx_above == imax)[0][0]
 
       #go right 
-      idx_right = idx_above.shape[0]
+      idx_right = idx_above.shape[0]-1
       for i in range(idx_above_max+1, idx_above.shape[0]):
         if idx_above[i] - idx_above[i-1] > 1:
           idx_right = i-1
@@ -450,7 +450,7 @@ def iccf_oneway_numba_slow(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       idx_above_max = np.where(idx_above == imax)[0][0]
 
       #go right 
-      idx_right = idx_above.shape[0]
+      idx_right = idx_above.shape[0]-1
       for i in range(idx_above_max+1, idx_above.shape[0]):
         if idx_above[i] - idx_above[i-1] > 1:
           idx_right = i-1
