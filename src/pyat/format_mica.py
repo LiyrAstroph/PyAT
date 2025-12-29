@@ -1,4 +1,4 @@
-__all__ = ["format_mica"]
+__all__ = ["format_mica", "load_mica"]
 
 import numpy as np 
 
@@ -99,3 +99,42 @@ def format_mica(fname, data1, data2):
         ic += 1
       
       fp.close()
+
+def load_mica(fname):
+  """
+  Load mica-format data
+  
+  Parameters
+  ----------
+  fname : str 
+    file name
+  
+  Returns
+  -------
+  data : dict
+    loaded data from input file
+  """
+
+  fp = open(fname, "r")
+  
+  line = fp.readline()
+  nd = int(line[1:])
+
+  ns = []
+  for i in range(nd):
+    line = fp.readline()
+    ns.append(line[1:].split(":"))
+
+  data = {}
+  for i in range(nd):
+    data["set%d"%i] = {}
+    for j in range(len(ns[i])):
+      datalc = np.zeros((int(ns[i][j]), 3))
+      for k in range(int(ns[i][j])):
+        line = fp.readline()
+        datalc[k, :] = line.split()
+      fp.readline()
+      data["set%d"%i]["lc%d"%j] = datalc 
+  fp.close()
+
+  return data
