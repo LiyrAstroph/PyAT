@@ -91,58 +91,34 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       # plt.axhline(y=ccf_peak*threshold, ls='--')
       # plt.show()
       raise ValueError("tau_end is too small to cover the region with ccf>threshold*ccf_peak.")
-    
-  if mode == "multiple":
 
-    tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
+  if idx_above.shape[0] == 1:
+    tau_cent = tau_peak
   
-  else:
-    
-    # only one point
-    if idx_above.shape[0] == 1:
-      return tau, ccf, ccf_peak, tau_peak, tau_peak
-
-    # first check if there are multiple peaks
-    dtau_idx = np.zeros(idx_above.shape[0])
-    dtau_idx[1:] = tau[idx_above[1:]] - tau[idx_above[:-1]]
-    dtau_idx[0] = dtau_idx[1]
-    dtau_idx_min = np.min(dtau_idx)
-
-    # if there is a large gap
-    idx_gap = np.where(dtau_idx > 3*dtau_idx_min)[0]
-
-    if idx_gap.shape[0] > 0:  # multiply peaked, use the major peak
-
-      imax_left_all  = np.where((ccf < threshold*ccf_peak) & (tau < tau_peak) )[0]
-      if imax_left_all.shape[0] > 0:
-        imax_left = imax_left_all[-1]
-      else:
-        imax_left = 0
-
-      imax_right_all = np.where((ccf < threshold*ccf_peak) & (tau > tau_peak) )[0]
-      if imax_right_all.shape[0] > 0:
-        imax_right = imax_right_all[0]
-      else:
-        imax_right = ntau
-
-      ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
-      ccf_norm = np.sum(ccf[imax_left+1:imax_right])
-
-      # left cross point
-      # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
-      # ccf_sum  += threshold*ccf_peak * tau_cross_left
-      # ccf_norm += threshold*ccf_peak
-
-      # right cross point
-      # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
-      # ccf_sum  += threshold*ccf_peak * tau_cross_right
-      # ccf_norm += threshold*ccf_peak
-
-      tau_cent = ccf_sum/ccf_norm
-
-    else:  # singlely peaked
-
+  else:  
+    if mode == "multiple":
       tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
+    
+    else:
+      # use the major peak 
+      idx_above_max = np.where(idx_above == imax)[0][0]
+
+      #go right 
+      idx_right = idx_above.shape[0]
+      for i in range(idx_above_max+1, idx_above.shape[0]):
+        if idx_above[i] - idx_above[i-1] > 1:
+          idx_right = i-1
+          break
+      
+      #go left 
+      idx_left = 0 
+      for i in range(idx_above_max-1, -1, -1):
+        if idx_above[i+1] - idx_above[i] > 1:
+          idx_left = i+1
+      
+      ccf_sum = np.sum(ccf[idx_above[idx_left:idx_right+1]]*tau[idx_above[idx_left:idx_right+1]])
+      ccf_norm = np.sum(ccf[idx_above[idx_left:idx_right+1]])  
+      tau_cent = ccf_sum/(ccf_norm+1.0e-10)    
 
   # plt.plot(tau, ccf, marker='o', markersize=2)
   # plt.axhline(y=ccf_peak)
@@ -227,57 +203,33 @@ def iccf_oneway(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       # plt.show()
       raise ValueError("tau_end is too small to cover the region with ccf>threshold*ccf_peak.")
     
-  if mode == "multiple":
-
-    tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
+  if idx_above.shape[0] == 1:
+    tau_cent = tau_peak
   
-  else:
-    
-    # only one point
-    if idx_above.shape[0] == 1:
-      return tau, ccf, ccf_peak, tau_peak, tau_peak
-
-    # first check if there are multiple peaks
-    dtau_idx = np.zeros(idx_above.shape[0])
-    dtau_idx[1:] = tau[idx_above[1:]] - tau[idx_above[:-1]]
-    dtau_idx[0] = dtau_idx[1]
-    dtau_idx_min = np.min(dtau_idx)
-
-    # if there is a large gap
-    idx_gap = np.where(dtau_idx > 3*dtau_idx_min)[0]
-
-    if idx_gap.shape[0] > 0:  # multiply peaked, use the major peak
-
-      imax_left_all  = np.where((ccf < threshold*ccf_peak) & (tau < tau_peak) )[0]
-      if imax_left_all.shape[0] > 0:
-        imax_left = imax_left_all[-1]
-      else:
-        imax_left = 0
-
-      imax_right_all = np.where((ccf < threshold*ccf_peak) & (tau > tau_peak) )[0]
-      if imax_right_all.shape[0] > 0:
-        imax_right = imax_right_all[0]
-      else:
-        imax_right = ntau
-
-      ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
-      ccf_norm = np.sum(ccf[imax_left+1:imax_right])
-
-      # left cross point
-      # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
-      # ccf_sum  += threshold*ccf_peak * tau_cross_left
-      # ccf_norm += threshold*ccf_peak
-
-      # right cross point
-      # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
-      # ccf_sum  += threshold*ccf_peak * tau_cross_right
-      # ccf_norm += threshold*ccf_peak
-
-      tau_cent = ccf_sum/ccf_norm
-
-    else:  # singlely peaked
-
+  else:  
+    if mode == "multiple":
       tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
+    
+    else:
+      # use the major peak 
+      idx_above_max = np.where(idx_above == imax)[0][0]
+
+      #go right 
+      idx_right = idx_above.shape[0]
+      for i in range(idx_above_max+1, idx_above.shape[0]):
+        if idx_above[i] - idx_above[i-1] > 1:
+          idx_right = i-1
+          break
+      
+      #go left 
+      idx_left = 0 
+      for i in range(idx_above_max-1, -1, -1):
+        if idx_above[i+1] - idx_above[i] > 1:
+          idx_left = i+1
+      
+      ccf_sum = np.sum(ccf[idx_above[idx_left:idx_right+1]]*tau[idx_above[idx_left:idx_right+1]])
+      ccf_norm = np.sum(ccf[idx_above[idx_left:idx_right+1]])  
+      tau_cent = ccf_sum/(ccf_norm+1.0e-10)   
 
   # plt.plot(tau, ccf, marker='o', markersize=2)
   # plt.axhline(y=ccf_peak)
@@ -379,62 +331,33 @@ def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       # plt.show()
       raise ValueError("tau_end is too small to cover the region with ccf>threshold*ccf_peak.")
     
-  if mode == "multiple":
-
-    tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
+  if idx_above.shape[0] == 1:
+    tau_cent = tau_peak
   
-  else:
+  else:  
+    if mode == "multiple":
+      tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
     
-    # only one point
-    if idx_above.shape[0] == 1:
-      return tau, ccf, ccf_peak, tau_peak, tau_peak
+    else:
+      # use the major peak 
+      idx_above_max = np.where(idx_above == imax)[0][0]
 
-    # first check if there are multiple peaks
-    dtau_idx = np.zeros(idx_above.shape[0])
-    dtau_idx[1:] = tau[idx_above[1:]] - tau[idx_above[:-1]]
-    dtau_idx[0] = dtau_idx[1]
-    dtau_idx_min = np.min(dtau_idx)
-
-    # if there is a large gap
-    idx_gap = np.where(dtau_idx > 3*dtau_idx_min)[0]
-
-    if idx_gap.shape[0] > 0:  # multiply peaked, use the major peak
-
-      imax_left_all  = np.where((ccf < threshold*ccf_peak) & (tau < tau_peak) )[0]
-      if imax_left_all.shape[0] > 0:
-        imax_left = imax_left_all[-1]
-      else:
-        imax_left = 0
-
-      imax_right_all = np.where((ccf < threshold*ccf_peak) & (tau > tau_peak) )[0]
-      if imax_right_all.shape[0] > 0:
-        imax_right = imax_right_all[0]
-      else:
-        imax_right = ntau
+      #go right 
+      idx_right = idx_above.shape[0]
+      for i in range(idx_above_max+1, idx_above.shape[0]):
+        if idx_above[i] - idx_above[i-1] > 1:
+          idx_right = i-1
+          break
       
-      # only contain one point
-      if imax_right - imax_left == 1:
-        tau_cent = tau_peak
-
-      else:
-        ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
-        ccf_norm = np.sum(ccf[imax_left+1:imax_right])
-
-        # left cross point
-        # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
-        # ccf_sum  += threshold*ccf_peak * tau_cross_left
-        # ccf_norm += threshold*ccf_peak
-
-        # right cross point
-        # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
-        # ccf_sum  += threshold*ccf_peak * tau_cross_right
-        # ccf_norm += threshold*ccf_peak
-
-        tau_cent = ccf_sum/(ccf_norm + 1.0e-10)
-
-    else:  # singlely peaked
-
-      tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/(np.sum(ccf[idx_above]) + 1.0e-10)
+      #go left 
+      idx_left = 0 
+      for i in range(idx_above_max-1, -1, -1):
+        if idx_above[i+1] - idx_above[i] > 1:
+          idx_left = i+1
+      
+      ccf_sum = np.sum(ccf[idx_above[idx_left:idx_right+1]]*tau[idx_above[idx_left:idx_right+1]])
+      ccf_norm = np.sum(ccf[idx_above[idx_left:idx_right+1]])  
+      tau_cent = ccf_sum/(ccf_norm+1.0e-10)   
 
   # plt.plot(tau, ccf, marker='o', markersize=2)
   # plt.axhline(y=ccf_peak)
@@ -515,61 +438,33 @@ def iccf_oneway_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
       # plt.show()
       raise ValueError("tau_end is too small to cover the region with ccf>threshold*ccf_peak.")
     
-  if mode == "multiple":
-
-    tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
+  if idx_above.shape[0] == 1:
+    tau_cent = tau_peak
   
-  else:
+  else:  
+    if mode == "multiple":
+      tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/np.sum(ccf[idx_above])
     
-    # only one point
-    if idx_above.shape[0] == 1:
-      return tau, ccf, ccf_peak, tau_peak, tau_peak
+    else:
+      # use the major peak 
+      idx_above_max = np.where(idx_above == imax)[0][0]
 
-    # first check if there are multiple peaks
-    dtau_idx = np.zeros(idx_above.shape[0])
-    dtau_idx[1:] = tau[idx_above[1:]] - tau[idx_above[:-1]]
-    dtau_idx[0] = dtau_idx[1]
-    dtau_idx_min = np.min(dtau_idx)
-
-    # if there is a large gap
-    idx_gap = np.where(dtau_idx > 3*dtau_idx_min)[0]
-
-    if idx_gap.shape[0] > 0:  # multiply peaked, use the major peak
-
-      imax_left_all  = np.where((ccf < threshold*ccf_peak) & (tau < tau_peak) )[0]
-      if imax_left_all.shape[0] > 0:
-        imax_left = imax_left_all[-1]
-      else:
-        imax_left = 0
-
-      imax_right_all = np.where((ccf < threshold*ccf_peak) & (tau > tau_peak) )[0]
-      if imax_right_all.shape[0] > 0:
-        imax_right = imax_right_all[0]
-      else:
-        imax_right = ntau
+      #go right 
+      idx_right = idx_above.shape[0]
+      for i in range(idx_above_max+1, idx_above.shape[0]):
+        if idx_above[i] - idx_above[i-1] > 1:
+          idx_right = i-1
+          break
       
-       # only contain one point
-      if imax_right - imax_left == 1:
-        tau_cent = tau_peak
-      else:
-        ccf_sum  = np.sum(ccf[imax_left+1:imax_right]*tau[imax_left+1:imax_right])
-        ccf_norm = np.sum(ccf[imax_left+1:imax_right])
-
-        # left cross point
-        # tau_cross_left = np.interp(threshold*ccf_peak, ccf[imax_left:imax_left+2], tau[imax_left:imax_left+2])
-        # ccf_sum  += threshold*ccf_peak * tau_cross_left
-        # ccf_norm += threshold*ccf_peak
-
-        # right cross point
-        # tau_cross_right = np.interp(threshold*ccf_peak, ccf[imax_right:imax_right-2:-1], tau[imax_right:imax_right-2:-1])
-        # ccf_sum  += threshold*ccf_peak * tau_cross_right
-        # ccf_norm += threshold*ccf_peak
-
-        tau_cent = ccf_sum/(ccf_norm+1.0e-10)
-
-    else:  # singlely peaked
-
-      tau_cent = np.sum(tau[idx_above] * ccf[idx_above])/(np.sum(ccf[idx_above])+1.0e-10)
+      #go left 
+      idx_left = 0 
+      for i in range(idx_above_max-1, -1, -1):
+        if idx_above[i+1] - idx_above[i] > 1:
+          idx_left = i+1
+      
+      ccf_sum = np.sum(ccf[idx_above[idx_left:idx_right+1]]*tau[idx_above[idx_left:idx_right+1]])
+      ccf_norm = np.sum(ccf[idx_above[idx_left:idx_right+1]])  
+      tau_cent = ccf_sum/(ccf_norm+1.0e-10)   
 
   # plt.plot(tau, ccf, marker='o', markersize=2)
   # plt.axhline(y=ccf_peak)
