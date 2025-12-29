@@ -92,8 +92,6 @@ def test_ccf():
   plt.errorbar(cont[:, 0], cont[:, 1], yerr=cont[:, 2], ls='none')
   plt.errorbar(line[:, 0], line[:, 1]*5, yerr=line[:, 2]*5, ls='none')
   
-  
-  
   ax = fig.add_subplot(122)
   t, r, rmax, tau_peak, tau_cent = pyat.iccf(cont[:, 0], cont[:, 1], line[:, 0], line[:, 1], 
                                                    1001, -50.0, 100, threshold=0.8, mode='single')
@@ -123,6 +121,48 @@ def test_ccf():
   ax3.hist(rmax_mc, bins=30, range=[0.4, 1.0])
 
   rmax_mc, tau_peak_mc, tau_cent_mc = pyat.iccf_mc_slow(cont[:, 0], cont[:, 1], cont[:, 2], line[:, 0], line[:, 1], line[:, 2], 
+                                                   500, -50.0, 100.0, threshold=0.8, mode="single", nsim=2000, ignore_warning=True)
+  
+  ax1.hist(tau_peak_mc, bins=30, label='centroid', alpha=0.5, range=[0, 60])
+  ax2.hist(tau_cent_mc, bins=30, label='peak', alpha=0.5, range=[0, 60])
+  ax3.hist(rmax_mc, bins=30, alpha=0.5, range=[0.4, 1.0])
+  plt.show()
+  
+  # test one-way iccf
+  fig = plt.figure(1)
+  ax = fig.add_subplot(121)
+  plt.errorbar(cont[:, 0], cont[:, 1], yerr=cont[:, 2], ls='none')
+  plt.errorbar(line[:, 0], line[:, 1]*5, yerr=line[:, 2]*5, ls='none')
+  
+  ax = fig.add_subplot(122)
+  t, r, rmax, tau_peak, tau_cent = pyat.iccf_oneway(cont[:, 0], cont[:, 1], line[:, 0], line[:, 1], 
+                                                   1001, -50.0, 100, threshold=0.8, mode='single')
+  print(rmax, tau_peak, tau_cent)
+  plt.plot(t, r)
+
+  t, r, rmax, tau_peak, tau_cent = pyat.iccf_oneway_slow(cont[:, 0], cont[:, 1], line[:, 0], line[:, 1], 
+                                                   1001, -50.0, 100, threshold=0.8, mode='single')
+  
+  print(rmax, tau_peak, tau_cent)
+  plt.plot(t, r)
+  plt.axhline(y=rmax*0.8, ls='--')
+  ax.set_xlabel("Time Lag")
+  ax.set_ylabel("ICCF")
+  plt.show()
+  
+  fig = plt.figure(1)
+  ax1 = fig.add_subplot(311)
+  ax2 = fig.add_subplot(312)
+  ax3 = fig.add_subplot(313)
+
+  rmax_mc, tau_peak_mc, tau_cent_mc = pyat.iccf_mc_oneway(cont[:, 0], cont[:, 1], cont[:, 2], line[:, 0], line[:, 1], line[:, 2], 
+                                                   500, -50.0, 100.0, threshold=0.8, mode="single", nsim=2000, ignore_warning=True)
+
+  ax1.hist(tau_peak_mc, bins=30, label='centroid', range=[0, 60])
+  ax2.hist(tau_cent_mc, bins=30, label='peak', range=[0, 60])
+  ax3.hist(rmax_mc, bins=30, range=[0.4, 1.0])
+
+  rmax_mc, tau_peak_mc, tau_cent_mc = pyat.iccf_mc_oneway_slow(cont[:, 0], cont[:, 1], cont[:, 2], line[:, 0], line[:, 1], line[:, 2], 
                                                    500, -50.0, 100.0, threshold=0.8, mode="single", nsim=2000, ignore_warning=True)
   
   ax1.hist(tau_peak_mc, bins=30, label='centroid', alpha=0.5, range=[0, 60])

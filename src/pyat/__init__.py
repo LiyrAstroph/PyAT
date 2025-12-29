@@ -4,7 +4,7 @@ __all__ = ["remove_outliers",
            "get_mean_rms", "get_line_widths", 
            "rebin_spectrum", "rebin_spectrum_with_error", "get_bin_edge",
            "iccf_slow", "iccf_oneway_slow", "iccf_mc_slow", "iccf_mc_oneway_slow",
-           "iccf", "iccf_mc",
+           "iccf", "iccf_mc", "iccf_oneway", "iccf_mc_oneway",
            "drw_recon", "drw_modeling", "genlc_psd_drw", "genlc_psd_pow",
            "detrend",
            "renin", "rebin_sig",
@@ -21,7 +21,7 @@ from pyat.estimate_syserr import estimate_syserr, estimate_syserr_median_filter
 from pyat.mean_rms_spectra import get_mean_rms, get_line_widths
 from pyat.rebin_spectrum import rebin_spectrum, rebin_spectrum_with_error, get_bin_edge
 from pyat.ccf import iccf_slow, iccf_oneway_slow, iccf_mc_slow, iccf_mc_oneway_slow
-from pyat.ccf_fast import iccf, iccf_mc
+from pyat.ccf_fast import iccf, iccf_mc, iccf_oneway, iccf_mc_oneway
 from pyat.drw import drw_recon, drw_modeling, genlc_psd_drw, genlc_psd_pow
 from pyat.detrend import detrend
 from pyat.rebin import rebin, rebin_sig
