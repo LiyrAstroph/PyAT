@@ -1,12 +1,12 @@
 
-__all__ = ["iccf", "iccf_oneway", "iccf_mc", "iccf_mc_oneway"]
+__all__ = ["iccf_slow", "iccf_oneway_slow", "iccf_mc_slow", "iccf_mc_oneway_slow"]
 
 import numpy as np
 from numba import jit, njit
 import matplotlib.pyplot as plt
 #import piccf_mc
 
-def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
+def iccf_slow(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
          threshold=0.8, mode="multiple", ignore_warning=False):
   """
   Interpolated CCF
@@ -137,7 +137,7 @@ def iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 
   return tau, ccf, ccf_peak, tau_peak, tau_cent
 
-def iccf_oneway(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
+def iccf_oneway_slow(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
          threshold=0.8, mode="multiple",ignore_warning=False):
   """
   Interpolated CCF. 
@@ -249,7 +249,7 @@ def iccf_oneway(t1, f1, t2, f2, ntau, tau_beg, tau_end,
   return tau, ccf, ccf_peak, tau_peak, tau_cent
 
 @njit
-def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
+def iccf_numba_slow(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
          threshold=0.8, mode="multiple", ignore_warning=False):
   """
   Interpolated CCF
@@ -377,7 +377,7 @@ def iccf_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
   return tau, ccf, ccf_peak, tau_peak, tau_cent
 
 @njit
-def iccf_oneway_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
+def iccf_oneway_numba_slow(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
          threshold=0.8, mode="multiple",ignore_warning=False):
   """
   Interpolated CCF
@@ -483,7 +483,7 @@ def iccf_oneway_numba(t1, f1, t2, f2, ntau, tau_beg, tau_end,
 
   return tau, ccf, ccf_peak, tau_peak, tau_cent
 
-def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
+def iccf_mc_slow(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
             nsim=1000, threshold=0.8, mode="multiple", ignore_warning=False):
   """
   Do mc simulation using the FR/RSS method (Peterson et al. 1998, ApJ, PASP, 110, 660).
@@ -521,7 +521,7 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end,
     f2_sim = f2[idxs] + e2_sim * np.random.randn(idxs.shape[0])
 
     # calculate ccf
-    tau, ccf, ccf_peak_mc[i], tau_peak_mc[i], tau_cent_mc[i] = iccf_numba(t1_sim, f1_sim, t2_sim, f2_sim, ntau, tau_beg, tau_end,
+    tau, ccf, ccf_peak_mc[i], tau_peak_mc[i], tau_cent_mc[i] = iccf_numba_slow(t1_sim, f1_sim, t2_sim, f2_sim, ntau, tau_beg, tau_end,
                                                                           threshold=threshold, mode=mode, ignore_warning=ignore_warning)
   
   print("done")
@@ -542,7 +542,7 @@ def iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end,
   idx = np.where(ccf_peak_mc > 0.0)[0]
   return ccf_peak_mc[idx], tau_peak_mc[idx], tau_cent_mc[idx]
 
-def iccf_mc_oneway(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
+def iccf_mc_oneway_slow(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
                    nsim=1001, threshold=0.8, mode="multiple", ignore_warning=False):
   """
   Do mc simulation using the FR/RSS method (Peterson et al. 1998, ApJ, PASP, 110, 660).
@@ -581,7 +581,7 @@ def iccf_mc_oneway(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end,
     f2_sim = f2[idxs] + e2_sim * np.random.randn(idxs.shape[0])
 
     # calculate ccf
-    tau, ccf, ccf_peak_mc[i], tau_peak_mc[i], tau_cent_mc[i] = iccf_oneway_numba(t1_sim, f1_sim, t2_sim, f2_sim, ntau, tau_beg, tau_end,
+    tau, ccf, ccf_peak_mc[i], tau_peak_mc[i], tau_cent_mc[i] = iccf_oneway_numba_slow(t1_sim, f1_sim, t2_sim, f2_sim, ntau, tau_beg, tau_end,
                                                                                  threshold=threshold, mode=mode, ignore_warning=ignore_warning)
   
   print("done")

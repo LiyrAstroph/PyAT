@@ -7,14 +7,29 @@
 
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
+from Cython.Build import cythonize
+from numpy import get_include
 from glob import glob
 import os
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 
-extensions = [
-    Extension(name="pyat.rebin", sources=glob(os.path.join(basedir, "src/pyat", "rebin.pyx"))),
-]
+extensions = cythonize([
+    Extension(name="pyat.rebin", 
+              sources=glob(os.path.join(basedir, "src/pyat", "rebin.pyx"))
+              ),
+              
+    Extension(name="pyat.ccf_fast", 
+              sources=[os.path.join(basedir, "src/pyat", "ccf_fast.pyx")]
+                    + [os.path.join(basedir, "src/pyat", "libccf.c")]
+                    + glob(os.path.join(basedir, "src/pyat", "gsl*.c")),
+              depends=[os.path.join(basedir, "src/pyat", "ccf_fast.pxd")]
+                    + [os.path.join(basedir, "src/pyat", "libccf.h")]
+                    + glob(os.path.join(basedir, "src/pyat", "gsl*.h")),
+              libraries=["c", "m"],
+              include_dirs=[get_include()]
+              ),
+])
 
 setup(
     name="pyat",

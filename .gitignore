@@ -9,6 +9,8 @@ src/pyat/*
 !src/pyat/*.py
 !src/pyat/*.pyx
 !src/pyat/*.pxd
+!src/pyat/gsl*.[ch]
+!src/pyat/libccf.[ch]
 !.gitignore
 docs
 !test/
