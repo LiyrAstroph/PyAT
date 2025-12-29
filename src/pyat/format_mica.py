@@ -6,6 +6,9 @@ def format_mica(fname, data1, data2):
   """
   This function generates a formatted file for MICA.
   If data1 is none, the vmap mode in MICA is presumed.
+  If data1 is a list, each entity represets one driving light curve,
+  the corresponding responding light curves are stored in data2, 
+  with the same order. 
 
   Parameters
   ----------
@@ -13,10 +16,10 @@ def format_mica(fname, data1, data2):
     File name
   
   data1 : 2D array like
-    The driving light curve, time, flux, and error.
+    The driving light curves, time, flux, and error.
   
   data2 : 2D array like
-    The responding light curve, time, flux, and error.
+    The responding light curves, time, flux, and error.
   
   Returns
   -------
@@ -69,7 +72,7 @@ def format_mica(fname, data1, data2):
           np.savetxt(fp, data2[i], fmt="%f")
         
         fp.close()
-    else:
+    else:  # data1 has multiple sets
       fp = open(fname, "w")
   
       # write header
