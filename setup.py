@@ -33,7 +33,7 @@ extensions = cythonize([
 
 setup(
     name="pyat",
-    version="0.0.0",
+    version="0.1.0",
     author="Yan-Rong Li",
     packages={"pyat", "pyat.template"},
     package_dir={'pyat':'src/pyat', 'pyat.template':'template'},

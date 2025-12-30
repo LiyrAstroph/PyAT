@@ -169,7 +169,7 @@ void ciccf(double t1[], double f1[], int n1, double t2[], double f2[], int n2,
         tau_temp  += ccf[j] * tau[j];
         norm_temp += ccf[j];
       }
-      tau_temp = tau_temp/(norm_temp+EPS);
+      *tau_cent = tau_temp/(norm_temp+EPS);
     }
     else /* centroid of the major single peak */
     {
@@ -204,10 +204,8 @@ void ciccf(double t1[], double f1[], int n1, double t2[], double f2[], int n2,
         tau_temp  += ccf[idx_above[i]]*tau[idx_above[i]];
         norm_temp += ccf[idx_above[i]];
       }
-      tau_temp = tau_temp/(norm_temp+EPS);
+      *tau_cent = tau_temp/(norm_temp+EPS);
     }
-
-    *tau_cent = tau_temp;
   }
 
   free(fintp);
@@ -339,7 +337,7 @@ void ciccf_oneway(double t1[], double f1[], int n1, double t2[], double f2[], in
         tau_temp  += ccf[j] * tau[j];
         norm_temp += ccf[j];
       }
-      tau_temp = tau_temp/(norm_temp+EPS);
+      *tau_cent = tau_temp/(norm_temp+EPS);
     }
     else /* centroid of the major single peak */
     {
@@ -374,10 +372,8 @@ void ciccf_oneway(double t1[], double f1[], int n1, double t2[], double f2[], in
         tau_temp  += ccf[idx_above[i]]*tau[idx_above[i]];
         norm_temp += ccf[idx_above[i]];
       }
-      tau_temp = tau_temp/(norm_temp+EPS);
+      *tau_cent = tau_temp/(norm_temp+EPS);
     }
-
-    *tau_cent = tau_temp;
   }
 
   free(fintp);

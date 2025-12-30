@@ -56,12 +56,18 @@ cpdef iccf(
        cross-correlation coefficient array
   rmax : double
        peak cross-correlation coefficient
-  tau_peak :
+  tau_peak : double
        peak time lag
-  tau_cent :
+  tau_cent : double
        centroid time lag
   """
   
+  if t1.shape[0] != f1.shape[0]:
+    raise ValueError("t1 and f1 should have the same size!")
+  
+  if t2.shape[0] != f2.shape[0]:
+    raise ValueError("t2 and f2 should have the same size!")
+
   if mode not in ["multiple", "single"]:
     raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
 
@@ -198,6 +204,8 @@ cpdef iccf_mc(
   cdef double *ccf_peak_mc_cython = <double *>PyMem_Malloc(nsim*sizeof(double))
   cdef double *tau_peak_mc_cython = <double *>PyMem_Malloc(nsim*sizeof(double))
   cdef double *tau_cent_mc_cython = <double *>PyMem_Malloc(nsim*sizeof(double))
+
+  cdef int i
   
   for i in range(t1.shape[0]):
     t1_cython[i] = t1[i]
@@ -279,11 +287,16 @@ cpdef iccf_oneway(
        cross-correlation coefficient array
   rmax : double
        peak cross-correlation coefficient
-  tau_peak :
+  tau_peak : double
        peak time lag
-  tau_cent :
+  tau_cent : double
        centroid time lag
   """
+  if t1.shape[0] != f1.shape[0]:
+    raise ValueError("t1 and f1 should have the same size!")
+  
+  if t2.shape[0] != f2.shape[0]:
+    raise ValueError("t2 and f2 should have the same size!")
 
   if mode not in ["multiple", "single"]:
     raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
@@ -399,6 +412,12 @@ cpdef iccf_mc_oneway(
     Monte Carlo sample of centroid time lag
   """
   
+  if t1.shape[0] != f1.shape[0] or t1.shape[0] != e1.shape[0]:
+    raise ValueError("t1, f1, and e1 should have the same size!")
+  
+  if t2.shape[0] != f2.shape[0] or t2.shape[0] != e2.shape[0]:
+    raise ValueError("t2, f2, and e2 should have the same size!")
+
   if mode not in ["multiple", "single"]:
     raise ValueError("mode = %s is not recognized! use 'multiple' or 'single'!"%mode)
 
@@ -422,6 +441,8 @@ cpdef iccf_mc_oneway(
   cdef double *ccf_peak_mc_cython = <double *>PyMem_Malloc(nsim*sizeof(double))
   cdef double *tau_peak_mc_cython = <double *>PyMem_Malloc(nsim*sizeof(double))
   cdef double *tau_cent_mc_cython = <double *>PyMem_Malloc(nsim*sizeof(double))
+
+  cdef int i
   
   for i in range(t1.shape[0]):
     t1_cython[i] = t1[i]
