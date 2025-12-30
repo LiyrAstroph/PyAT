@@ -1,4 +1,12 @@
 
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
+
 cdef extern from "libccf.h":
   void ciccf(double t1[], double f1[], int n1, double t2[], double f2[], int n2,             \
               int ntau, double tau_beg, double tau_end,                                      \

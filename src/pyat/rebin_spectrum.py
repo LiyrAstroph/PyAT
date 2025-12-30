@@ -1,4 +1,12 @@
 
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
+
 __all__ = ["get_bin_edge", "rebin_spectrum", "rebin_spectrum_with_error"]
 
 import numpy as np

@@ -1,3 +1,11 @@
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
+
 __all__ = ["format_mica", "load_mica"]
 
 import numpy as np 

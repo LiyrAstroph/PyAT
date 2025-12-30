@@ -1,3 +1,10 @@
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
 __all__ = ["remove_outliers", 
            "format_mica", "load_mica",
            "estimate_syserr", "estimate_syserr_median_filter",

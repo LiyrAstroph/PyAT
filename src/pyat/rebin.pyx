@@ -1,6 +1,14 @@
 #!/usr/bin/python
 #cython: initializedcheck=False, boundscheck=False, wraparound=False, cdivision=True, profile=False
 
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
+
 __all__ = ["rebin", "rebin_sig"]
 
 cimport cython

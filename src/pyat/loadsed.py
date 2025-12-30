@@ -1,9 +1,10 @@
-#===============================================
-# Python Astronomical Tools
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
 #
-# Developed by Yan-Rong Li, liyanrong@ihep.ac.cn
-# 2023-08-31
-#===============================================
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
 
 __all__ = ["list_seds", "load_sed"]
 

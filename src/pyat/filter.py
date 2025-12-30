@@ -1,4 +1,12 @@
 
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
+
 import numpy as np
 
 __all__ = ['smooth_savgol']

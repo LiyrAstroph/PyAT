@@ -1,3 +1,10 @@
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
 
 __all__ = ["drw_recon", "drw_modeling", "genlc_psd_pow", "genlc_psd_drw"]
 

@@ -1,4 +1,12 @@
 
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
+
 __all__ = ["iccf_slow", "iccf_oneway_slow", "iccf_mc_slow", "iccf_mc_oneway_slow"]
 
 import numpy as np

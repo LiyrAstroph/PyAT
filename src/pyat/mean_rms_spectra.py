@@ -1,3 +1,11 @@
+#===================================================================================#
+#  PyAT: Python Astronomical Tools
+#  A package providing basic, common tools in astronomical analysis
+#
+#  Yan-Rong Li, liyropt@gmail.com
+#  2023-08-31
+#===================================================================================#
+
 __all__ = ["get_mean_rms", "get_line_widths"]
 
 import numpy as np
