@@ -54,7 +54,6 @@ def drw_recon(t, y, yerr):
     kernel2 = terms.RealTerm(log_a=log_a, log_c=log_c, bounds=bounds2)
     kernel = kernel2
 
-
     # build celerite model
     gp = celerite.GP(kernel, mean=np.mean(y))
     gp.compute(t, yerr)
@@ -69,12 +68,12 @@ def drw_recon(t, y, yerr):
 
     # Time grid for reconstruction
     tspan = t[-1]-t[0]
-    x = np.linspace(t[0]-0.05*tspan, t[-1]+0.05*tspan, 500)
+    t_rec = np.linspace(t[0]-0.05*tspan, t[-1]+0.05*tspan, 500)
 
-    pred_mean, pred_var = gp.predict(y, x, return_var=True)
+    pred_mean, pred_var = gp.predict(y, t_rec, return_var=True)
     pred_std = np.sqrt(pred_var)
 
-    return x, pred_mean, pred_std
+    return t_rec, pred_mean, pred_std
 
 def drw_modeling(t, y, yerr, doshow=False):
     """
@@ -85,7 +84,6 @@ def drw_modeling(t, y, yerr, doshow=False):
     :param yerr: error
     :param doshow: whether show figures
     """
-
     # first normalize the light curve 
     scale = -np.ceil(np.log10(np.median(y)))
     y_new = y * 10.0**(scale) 
@@ -100,7 +98,6 @@ def drw_modeling(t, y, yerr, doshow=False):
     kernel2 = terms.RealTerm(log_a=log_a, log_c=log_c, bounds=bounds2)
     kernel = kernel2
 
-
     # build celerite model
     gp = celerite.GP(kernel, mean=np.mean(y_new))
     gp.compute(t_new, yerr_new)
@@ -114,34 +111,32 @@ def drw_modeling(t, y, yerr, doshow=False):
     print(np.exp(0.5*initial_params[0]), np.exp(-initial_params[1]))
 
     # Time grid for reconstruction
-    x = np.linspace(t_new[0]-10.0, t_new[-1]+10.0, np.max((1000, int(t_new[-1]+20.0-t_new[0]))))
+    t_rec = np.linspace(t_new[0]-10.0, t_new[-1]+10.0, np.max((1000, int(t_new[-1]+20.0-t_new[0]))))
 
-    pred_mean, pred_var = gp.predict(y_new, x, return_var=True)
+    pred_mean, pred_var = gp.predict(y_new, t_rec, return_var=True)
     pred_std = np.sqrt(pred_var)
-
-    color = "#ff7f0e"
-    fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_axes((0.1, 0.1, 0.6, 0.8))
-    plt.errorbar(t_new, y_new, yerr=yerr_new, fmt=".k", capsize=0)
-    plt.plot(x, pred_mean, color=color)
-    plt.fill_between(x, pred_mean+pred_std, pred_mean-pred_std, color=color, alpha=0.3,
-                    edgecolor="none")
-    plt.xlabel("Time")
-    plt.ylabel("Flux ($10^{%d}$)"%(scale))
-    ax = fig.add_axes((0.72, 0.1, 0.2, 0.8))
-    y_intp = np.interp(t_new, x, pred_mean)
-    ax.hist((y_new-y_intp)/yerr_new, orientation="horizontal")
-    ax.set_ylabel("Residual/Error")
-    ax.set_xlabel("Histogram")
-    ax.yaxis.set_tick_params(labelleft=False, labelright=True, left=False, right=True)
-    ax.yaxis.set_label_position("right")
-    ylim = ax.get_ylim()
-    ymax = np.max((abs(ylim[0]), abs(ylim[1])))
-    ax.set_ylim(-ymax, ymax)
+    
     if doshow:
+        color = "#ff7f0e"
+        fig = plt.figure(figsize=(8, 6))
+        ax = fig.add_axes((0.1, 0.1, 0.6, 0.8))
+        plt.errorbar(t_new, y_new, yerr=yerr_new, fmt=".k", capsize=0)
+        plt.plot(x, pred_mean, color=color)
+        plt.fill_between(x, pred_mean+pred_std, pred_mean-pred_std, color=color, alpha=0.3,
+                        edgecolor="none")
+        plt.xlabel("Time")
+        plt.ylabel("Flux ($10^{%d}$)"%(scale))
+        ax = fig.add_axes((0.72, 0.1, 0.2, 0.8))
+        y_intp = np.interp(t_new, x, pred_mean)
+        ax.hist((y_new-y_intp)/yerr_new, orientation="horizontal")
+        ax.set_ylabel("Residual/Error")
+        ax.set_xlabel("Histogram")
+        ax.yaxis.set_tick_params(labelleft=False, labelright=True, left=False, right=True)
+        ax.yaxis.set_label_position("right")
+        ylim = ax.get_ylim()
+        ymax = np.max((abs(ylim[0]), abs(ylim[1])))
+        ax.set_ylim(-ymax, ymax)
         plt.show()
-    else:
-        plt.close()
 
 
     # MCMC sampling
@@ -158,7 +153,7 @@ def drw_modeling(t, y, yerr, doshow=False):
     sampler.run_mcmc(p0, 2000)
 
     sample = sampler.flatchain
-    sample[:, 0] = sample[:, 0]*0.5 - np.log(10.0**scale)
+    sample[:, 0] =  sample[:, 0]*0.5 - np.log(10.0**scale)
     sample[:, 1] = -sample[:, 1]
 
     if doshow:
