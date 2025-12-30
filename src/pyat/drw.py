@@ -120,12 +120,24 @@ def drw_modeling(t, y, yerr, doshow=False):
     pred_std = np.sqrt(pred_var)
 
     color = "#ff7f0e"
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_axes((0.1, 0.1, 0.6, 0.8))
     plt.errorbar(t_new, y_new, yerr=yerr_new, fmt=".k", capsize=0)
     plt.plot(x, pred_mean, color=color)
     plt.fill_between(x, pred_mean+pred_std, pred_mean-pred_std, color=color, alpha=0.3,
                     edgecolor="none")
     plt.xlabel("Time")
     plt.ylabel("Flux ($10^{%d}$)"%(scale))
+    ax = fig.add_axes((0.72, 0.1, 0.2, 0.8))
+    y_intp = np.interp(t_new, x, pred_mean)
+    ax.hist((y_new-y_intp)/yerr_new, orientation="horizontal")
+    ax.set_ylabel("Residual/Error")
+    ax.set_xlabel("Histogram")
+    ax.yaxis.set_tick_params(labelleft=False, labelright=True, left=False, right=True)
+    ax.yaxis.set_label_position("right")
+    ylim = ax.get_ylim()
+    ymax = np.max((abs(ylim[0]), abs(ylim[1])))
+    ax.set_ylim(-ymax, ymax)
     if doshow:
         plt.show()
     else:
