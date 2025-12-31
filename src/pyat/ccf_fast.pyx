@@ -24,7 +24,7 @@ np.import_array()
 #============================================================================
 # proto for iccf
 #============================================================================
-cpdef iccf_proto(
+cdef iccf_proto(
   np.ndarray[double, ndim=1] t1, 
   np.ndarray[double, ndim=1] f1, 
   np.ndarray[double, ndim=1] t2, 
@@ -144,7 +144,7 @@ cpdef iccf_proto(
 #============================================================================
 # proto for iccf mc
 #============================================================================
-cpdef iccf_mc_proto(
+cdef iccf_mc_proto(
   np.ndarray[double, ndim=1] t1, 
   np.ndarray[double, ndim=1] f1, 
   np.ndarray[double, ndim=1] e1,
@@ -160,7 +160,7 @@ cpdef iccf_mc_proto(
   bint ignore_warning=False,
   int ways=0):
   """
-  Do Monte Carlo simulation using the FR/RSS method (Peterson et al. 1998, ApJ, PASP, 110, 660).
+  Monte Carlo simulation using the FR/RSS method (Peterson et al. 1998, ApJ, PASP, 110, 660).
   
   Parameters
   ----------
@@ -511,7 +511,220 @@ cpdef iccf_mc_oneway(
                        nsim=nsim, threshold=threshold, mode=mode, 
                        ignore_warning=ignore_warning, ways=1)
 
+#============================================================================
+# proto for significance estimation of iccf peak
+#============================================================================
+cdef iccf_peak_significance_proto(
+  np.ndarray[double, ndim=1] t1, 
+  np.ndarray[double, ndim=1] f1, 
+  np.ndarray[double, ndim=1] e1,
+  np.ndarray[double, ndim=1] t2, 
+  np.ndarray[double, ndim=1] f2,
+  np.ndarray[double, ndim=1] e2,
+  int ntau,
+  double tau_beg,
+  double tau_end,
+  int nsim=1000,
+  int ways=0,
+  bint doshow=False):
+  """
+  Significance testing of the iccf peak, that is, computing the probability
+  for iccf peaks of mock light-curve pairs exceeding the iccf peak of input light curves.
+  The mock light curves are assumed to be fully random and uncorrelated.
 
+  Parameters
+  ----------
+  t1 : numpy array
+    time of first light curve
+  f1 : numpy array 
+    flux of first light curve
+  e1 : numpy array 
+    error of first light curve
+  t2 : numpy array
+    time of second light curve
+  f2 : numpy array 
+    flux of second light curve
+  e3 : numpy array 
+    error of second light curve
+  ntau : int
+    number of time lag point
+  tau_beg : double 
+    starting time lag
+  tau_end : double
+    ending time lag 
+  
+  Returns
+  -------
+  prob : double 
+    probability of iccf peaks exceeding the iccf peak of input light curves 
+  rmax_sim : numpy array
+    array of rmax of simulated light curves
+  """
+  if t1.shape[0] != f1.shape[0] or t1.shape[0] != e1.shape[0]:
+    raise ValueError("t1, f1, and e1 should have the same size!")
+  
+  if t2.shape[0] != f2.shape[0] or t2.shape[0] != e2.shape[0]:
+    raise ValueError("t2, f2, and e2 should have the same size!")
+  
+  cdef double prob=0.0
+  cdef double sigma_drw, tau_drw
+  cdef double dt1, dt2, mu1_data, var1_data, mu2_data, var2_data, 
+  cdef double mean_e1_data, mean_e2_data, std1_data_corr, std2_data_corr
+  cdef double mu1, std1, mu2, std2
+  cdef int i, j, ic, num1, num2, idx_max
+  cdef double rmax, rmax_data, tau_peak, tau_peak_data
+
+  cdef np.ndarray[double, ndim=2] sample1
+  cdef np.ndarray[double, ndim=2] sample2
+  cdef np.ndarray[int, ndim=1] ir1
+  cdef np.ndarray[int, ndim=1] ir2
+  
+  cdef np.ndarray[double, ndim=1] ts
+  cdef np.ndarray[double, ndim=1] fs
+  cdef np.ndarray[double, ndim=1] fr1 = np.zeros(t1.shape[0])
+  cdef np.ndarray[double, ndim=1] fe1 = np.zeros(t1.shape[0])
+  cdef np.ndarray[double, ndim=1] fr2 = np.zeros(t2.shape[0])
+  cdef np.ndarray[double, ndim=1] fe2 = np.zeros(t2.shape[0])
+  cdef np.ndarray[double, ndim=1] rmax_sim = np.zeros(nsim)
+
+  cdef double *tr1_cython = <double *>PyMem_Malloc(t1.shape[0]*sizeof(double)) 
+  cdef double *fr1_cython = <double *>PyMem_Malloc(t1.shape[0]*sizeof(double))
+  cdef double *tr2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
+  cdef double *fr2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
+  cdef double *tau_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
+  cdef double *ccf_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
+
+  for i in range(t1.shape[0]):
+    tr1_cython[i] = t1[i]
+    fr1_cython[i] = f1[i]
+  for i in range(t2.shape[0]):
+    tr2_cython[i] = t2[i]
+    fr2_cython[i] = f2[i]
+  
+  # rmax of the input data 
+  ciccf_peak_proto(tr1_cython, fr1_cython, t1.shape[0], 
+             tr2_cython, fr2_cython, t2.shape[0], 
+             ntau, tau_beg, tau_end, ways,
+             tau_cython, ccf_cython, &rmax_data, &idx_max, &tau_peak_data)
+
+  # determine the minimum sampling interval
+  dt1 = np.quantile(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1], q=0.05)
+  dt2 = np.quantile(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1], q=0.05)
+  num1 = int((t1[t1.shape[0]-1]-t1[0])/dt1)
+  num2 = int((t2[t2.shape[0]-1]-t2[0])/dt2)
+
+  # determine the mean and std 
+  mu1_data = np.mean(f1)
+  mu2_data = np.mean(f2)
+  mean_e1_data = np.mean(e1**2)
+  mean_e2_data = np.mean(e2**2)
+  var1_data = np.var(f1, mean=mu1_data)
+  var2_data = np.var(f2, mean=mu2_data)
+  std1_data_corr = np.sqrt(var1_data - mean_e1_data)
+  std2_data_corr = np.sqrt(var2_data - mean_e2_data)
+
+  # get DRW parameter sample 
+  sample1 = drw_modeling(t1, f1, e1, doshow=doshow)
+  sample2 = drw_modeling(t2, f2, e2, doshow=doshow)
+  
+  ir1 = np.random.randint(0, sample1.shape[0], size=nsim, dtype=np.int32)
+  ir2 = np.random.randint(0, sample2.shape[0], size=nsim, dtype=np.int32)
+  
+  for i in range(nsim):
+    if i%(nsim/10) == 0:
+      print("%d%%-"%(100*i/nsim), end="")
+
+    # generate mock light curve for f1
+    sigma_drw, tau_drw = np.exp(sample1[ir1[i], :])
+    ts, fs = genlc_psd_drw([sigma_drw, tau_drw, 1.0e-100], num1, dt1, 1.0e-10)
+    ts += t1[0]
+
+    fr1 = np.interp(t1, ts, fs)
+    mu1  = np.mean(fr1)
+    std1 = np.std(fr1)
+    fr1 = (fr1-mu1)/std1 * std1_data_corr + mu1_data
+    fe1 = abs(fr1) * abs(e1/f1)
+    fr1 += np.random.randn(fr1.shape[0])*fe1
+
+    # generate mock light curve for f1
+    sigma_drw, tau_drw = np.exp(sample2[ir2[i], :])
+    ts, fs = genlc_psd_drw([sigma_drw, tau_drw, 1.0e-100], num2, dt2, 1.0e-10)
+    ts += t2[0]
+
+    fr2  = np.interp(t2, ts, fs)
+    mu2  = np.mean(fr2)
+    std2 = np.std(fr2)
+    fr2 = (fr2-mu2)/std2 * std2_data_corr + mu2_data
+    fe2 = abs(fr2) * abs(e2/f2)
+    fr2 += np.random.randn(fr2.shape[0])*fe2
+    
+    for j in range(t1.shape[0]):
+      fr1_cython[j] = fr1[j]
+    for j in range(t2.shape[0]):
+      fr2_cython[j] = fr2[j]
+
+    # call c function 
+    ciccf_peak_proto(tr1_cython, fr1_cython, t1.shape[0], 
+               tr2_cython, fr2_cython, t2.shape[0], 
+               ntau, tau_beg, tau_end, ways,
+               tau_cython, ccf_cython, &rmax, &idx_max, &tau_peak)
+    
+    rmax_sim[i] = rmax
+
+    if doshow and i == 0:
+      tau = np.zeros(ntau)
+      ccf = np.zeros(ntau)
+      for j in range(ntau):
+        tau[j] = tau_cython[j]
+        ccf[j] = ccf_cython[j]
+      
+      import matplotlib.pyplot as plt
+      fig = plt.figure()
+      ax = fig.add_subplot(221)
+      ax.errorbar(t1, f1, yerr=e1)
+      ax.errorbar(t1, fr1, yerr=fe1)
+
+      ax = fig.add_subplot(223)
+      ax.errorbar(t2, f2, yerr=e2)
+      ax.errorbar(t2, fr2, yerr=fe2)
+
+      ax = fig.add_subplot(122)
+      ax.plot(tau, ccf)
+
+      plt.show()
+      
+  print("Done.")
+  
+  # counts number of rmax > rmax_data
+  ic = 0
+  for i in range(nsim):
+    if rmax_sim[i] >= rmax_data:
+      ic += 1
+
+  prob = ic*1.0/nsim
+  print("Prob: %.4f"%prob)
+
+  if doshow:
+    import matplotlib.pyplot as plt 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.hist(rmax_sim, bins=30)
+    ax.axvline(x=rmax_data, ls='--', color='red')
+    plt.show()
+
+  PyMem_Free(tr1_cython)
+  PyMem_Free(tr2_cython)
+  PyMem_Free(fr1_cython)
+  PyMem_Free(fr2_cython)
+  PyMem_Free(tau_cython)
+  PyMem_Free(ccf_cython)
+
+  return prob, rmax_sim
+  
+#============================================================================
+# significiance estimation of two-way iccf peak
+# directly call iccf_peak_significance_proto
+#============================================================================
 cpdef iccf_peak_significance(
   np.ndarray[double, ndim=1] t1, 
   np.ndarray[double, ndim=1] f1, 
@@ -557,167 +770,13 @@ cpdef iccf_peak_significance(
   rmax_sim : numpy array
     array of rmax of simulated light curves
   """
-  if t1.shape[0] != f1.shape[0] or t1.shape[0] != e1.shape[0]:
-    raise ValueError("t1, f1, and e1 should have the same size!")
-  
-  if t2.shape[0] != f2.shape[0] or t2.shape[0] != e2.shape[0]:
-    raise ValueError("t2, f2, and e2 should have the same size!")
-  
-  cdef double prob=0.0
-  cdef double sigma_drw, tau_drw
-  cdef double dt1, dt2, mu1_data, var1_data, mu2_data, var2_data, 
-  cdef double mean_e1_data, mean_e2_data, std1_data_corr, std2_data_corr
-  cdef double mu1, std1, mu2, std2
-  cdef int i, j, ic, num1, num2
-  cdef double rmax, rmax_data, tau_peak, tau_peak_data
+  return iccf_peak_significance_proto(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
+                                      nsim=nsim, ways=0, doshow=doshow)
 
-  cdef np.ndarray[double, ndim=2] sample1
-  cdef np.ndarray[double, ndim=2] sample2
-  cdef np.ndarray[int, ndim=1] ir1
-  cdef np.ndarray[int, ndim=1] ir2
-  
-  cdef np.ndarray[double, ndim=1] ts
-  cdef np.ndarray[double, ndim=1] fs
-  cdef np.ndarray[double, ndim=1] fr1 = np.zeros(t1.shape[0])
-  cdef np.ndarray[double, ndim=1] fe1 = np.zeros(t1.shape[0])
-  cdef np.ndarray[double, ndim=1] fr2 = np.zeros(t2.shape[0])
-  cdef np.ndarray[double, ndim=1] fe2 = np.zeros(t2.shape[0])
-  cdef np.ndarray[double, ndim=1] rmax_sim = np.zeros(nsim)
-
-  cdef double *tr1_cython = <double *>PyMem_Malloc(t1.shape[0]*sizeof(double)) 
-  cdef double *fr1_cython = <double *>PyMem_Malloc(t1.shape[0]*sizeof(double))
-  cdef double *tr2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
-  cdef double *fr2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
-  cdef double *tau_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
-  cdef double *ccf_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
-
-  for i in range(t1.shape[0]):
-    tr1_cython[i] = t1[i]
-    fr1_cython[i] = f1[i]
-  for i in range(t2.shape[0]):
-    tr2_cython[i] = t2[i]
-    fr2_cython[i] = f2[i]
-  
-  # rmax of the input data 
-  ciccf_peak(tr1_cython, fr1_cython, t1.shape[0], 
-             tr2_cython, fr2_cython, t2.shape[0], 
-             ntau, tau_beg, tau_end,
-             tau_cython, ccf_cython, &rmax_data, &tau_peak_data)
-
-  # determine the minimum sampling interval
-  dt1 = np.quantile(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1], q=0.05)
-  dt2 = np.quantile(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1], q=0.05)
-  num1 = int((t1[t1.shape[0]-1]-t1[0])/dt1)
-  num2 = int((t2[t2.shape[0]-1]-t2[0])/dt2)
-
-  # determine the mean and std 
-  mu1_data = np.mean(f1)
-  mu2_data = np.mean(f2)
-  mean_e1_data = np.mean(e1**2)
-  mean_e2_data = np.mean(e2**2)
-  var1_data = np.var(f1, mean=mu1_data)
-  var2_data = np.var(f2, mean=mu2_data)
-  std1_data_corr = np.sqrt(var1_data - mean_e1_data)
-  std2_data_corr = np.sqrt(var2_data - mean_e2_data)
-
-  # get DRW parameter sample 
-  sample1 = drw_modeling(t1, f1, e1, doshow=doshow)
-  sample2 = drw_modeling(t2, f2, e2, doshow=doshow)
-  
-  ir1 = np.random.randint(0, sample1.shape[0], size=nsim, dtype=np.int32)
-  ir2 = np.random.randint(0, sample2.shape[0], size=nsim, dtype=np.int32)
-  
-  for i in range(nsim):
-    if i%(nsim/10) == 0:
-      print("%d%%-"%(100*i/nsim), end="")
-
-    # generate mock light curve for f1
-    sigma_drw, tau_drw = np.exp(sample1[ir1[i], :])
-    ts, fs = genlc_psd_drw([sigma_drw, tau_drw, 1.0e-100], num1, dt1, 1.0e-10)
-    ts += t1[0]
-
-    fr1 = np.interp(t1, ts, fs)
-    mu1  = np.mean(fr1)
-    std1 = np.std(fr1)
-    fr1 = (fr1-mu1)/std1 * std1_data_corr + mu1_data
-    fe1 = abs(fr1) * abs(e1/f1)
-    fr1 += np.random.randn(fr1.shape[0])*fe1
-
-    # generate mock light curve for f1
-    sigma_drw, tau_drw = np.exp(sample2[ir2[i], :])
-    ts, fs = genlc_psd_drw([sigma_drw, tau_drw, 1.0e-100], num2, dt2, 1.0e-10)
-    ts += t2[0]
-
-    fr2  = np.interp(t2, ts, fs)
-    mu2  = np.mean(fr2)
-    std2 = np.std(fr2)
-    fr2 = (fr2-mu2)/std2 * std2_data_corr + mu2_data
-    fe2 = abs(fr2) * abs(e2/f2)
-    fr2 += np.random.randn(fr2.shape[0])*fe2
-    
-    for j in range(t1.shape[0]):
-      fr1_cython[j] = fr1[j]
-    for j in range(t2.shape[0]):
-      fr2_cython[j] = fr2[j]
-
-    # call c function 
-    ciccf_peak(tr1_cython, fr1_cython, t1.shape[0], 
-               tr2_cython, fr2_cython, t2.shape[0], 
-               ntau, tau_beg, tau_end,
-               tau_cython, ccf_cython, &rmax, &tau_peak)
-    
-    rmax_sim[i] = rmax
-
-    if doshow and i == 0:
-      tau = np.zeros(ntau)
-      ccf = np.zeros(ntau)
-      for j in range(ntau):
-        tau[j] = tau_cython[j]
-        ccf[j] = ccf_cython[j]
-      
-      import matplotlib.pyplot as plt
-      fig = plt.figure()
-      ax = fig.add_subplot(221)
-      ax.errorbar(t1, f1, yerr=e1)
-      ax.errorbar(t1, fr1, yerr=fe1)
-
-      ax = fig.add_subplot(223)
-      ax.errorbar(t2, f2, yerr=e2)
-      ax.errorbar(t2, fr2, yerr=fe2)
-
-      ax = fig.add_subplot(122)
-      ax.plot(tau, ccf)
-
-      plt.show()
-      
-  print("Done.")
-  
-  # counts number of rmax > rmax_data
-  ic = 0
-  for i in range(nsim):
-    if rmax_sim[i] >= rmax_data:
-      ic += 1
-
-  prob = ic*1.0/nsim
-  print("Prob: %.4f"%prob)
-
-  if doshow:
-    import matplotlib.pyplot as plt 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.hist(rmax_sim, bins=30)
-    ax.axvline(x=rmax_data, ls='--', color='red')
-    plt.show()
-
-  PyMem_Free(tr1_cython)
-  PyMem_Free(tr2_cython)
-  PyMem_Free(fr1_cython)
-  PyMem_Free(fr2_cython)
-  PyMem_Free(tau_cython)
-  PyMem_Free(ccf_cython)
-
-  return prob, rmax_sim
-
+#============================================================================
+# significiance estimation of one-way iccf peak
+# directly call iccf_peak_significance_proto
+#============================================================================
 cpdef iccf_oneway_peak_significance(
   np.ndarray[double, ndim=1] t1, 
   np.ndarray[double, ndim=1] f1, 
@@ -763,163 +822,5 @@ cpdef iccf_oneway_peak_significance(
   rmax_sim : numpy array
     array of rmax of simulated light curves
   """
-  if t1.shape[0] != f1.shape[0] or t1.shape[0] != e1.shape[0]:
-    raise ValueError("t1, f1, and e1 should have the same size!")
-  
-  if t2.shape[0] != f2.shape[0] or t2.shape[0] != e2.shape[0]:
-    raise ValueError("t2, f2, and e2 should have the same size!")
-  
-  cdef double prob=0.0
-  cdef double sigma_drw, tau_drw
-  cdef double dt1, dt2, mu1_data, var1_data, mu2_data, var2_data, 
-  cdef double mean_e1_data, mean_e2_data, std1_data_corr, std2_data_corr
-  cdef double mu1, std1, mu2, std2
-  cdef int i, j, ic, num1, num2
-  cdef double rmax, rmax_data, tau_peak, tau_peak_data
-
-  cdef np.ndarray[double, ndim=2] sample1
-  cdef np.ndarray[double, ndim=2] sample2
-  cdef np.ndarray[int, ndim=1] ir1
-  cdef np.ndarray[int, ndim=1] ir2
-  
-  cdef np.ndarray[double, ndim=1] ts
-  cdef np.ndarray[double, ndim=1] fs
-  cdef np.ndarray[double, ndim=1] fr1 = np.zeros(t1.shape[0])
-  cdef np.ndarray[double, ndim=1] fe1 = np.zeros(t1.shape[0])
-  cdef np.ndarray[double, ndim=1] fr2 = np.zeros(t2.shape[0])
-  cdef np.ndarray[double, ndim=1] fe2 = np.zeros(t2.shape[0])
-  cdef np.ndarray[double, ndim=1] rmax_sim = np.zeros(nsim)
-
-  cdef double *tr1_cython = <double *>PyMem_Malloc(t1.shape[0]*sizeof(double)) 
-  cdef double *fr1_cython = <double *>PyMem_Malloc(t1.shape[0]*sizeof(double))
-  cdef double *tr2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
-  cdef double *fr2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
-  cdef double *tau_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
-  cdef double *ccf_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
-
-  for i in range(t1.shape[0]):
-    tr1_cython[i] = t1[i]
-    fr1_cython[i] = f1[i]
-  for i in range(t2.shape[0]):
-    tr2_cython[i] = t2[i]
-    fr2_cython[i] = f2[i]
-  
-  # rmax of the input data 
-  ciccf_oneway_peak(tr1_cython, fr1_cython, t1.shape[0], 
-             tr2_cython, fr2_cython, t2.shape[0], 
-             ntau, tau_beg, tau_end,
-             tau_cython, ccf_cython, &rmax_data, &tau_peak_data)
-
-  # determine the minimum sampling interval
-  dt1 = np.quantile(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1], q=0.05)
-  dt2 = np.quantile(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1], q=0.05)
-  num1 = int((t1[t1.shape[0]-1]-t1[0])/dt1)
-  num2 = int((t2[t2.shape[0]-1]-t2[0])/dt2)
-
-  # determine the mean and std 
-  mu1_data = np.mean(f1)
-  mu2_data = np.mean(f2)
-  mean_e1_data = np.mean(e1**2)
-  mean_e2_data = np.mean(e2**2)
-  var1_data = np.var(f1, mean=mu1_data)
-  var2_data = np.var(f2, mean=mu2_data)
-  std1_data_corr = np.sqrt(var1_data - mean_e1_data)
-  std2_data_corr = np.sqrt(var2_data - mean_e2_data)
-
-  # get DRW parameter sample 
-  sample1 = drw_modeling(t1, f1, e1, doshow=doshow)
-  sample2 = drw_modeling(t2, f2, e2, doshow=doshow)
-  
-  ir1 = np.random.randint(0, sample1.shape[0], size=nsim, dtype=np.int32)
-  ir2 = np.random.randint(0, sample2.shape[0], size=nsim, dtype=np.int32)
-  
-  for i in range(nsim):
-    if i%(nsim/10) == 0:
-      print("%d%%-"%(100*i/nsim), end="")
-
-    # generate mock light curve for f1
-    sigma_drw, tau_drw = np.exp(sample1[ir1[i], :])
-    ts, fs = genlc_psd_drw([sigma_drw, tau_drw, 1.0e-100], num1, dt1, 1.0e-10)
-    ts += t1[0]
-
-    fr1 = np.interp(t1, ts, fs)
-    mu1  = np.mean(fr1)
-    std1 = np.std(fr1)
-    fr1 = (fr1-mu1)/std1 * std1_data_corr + mu1_data
-    fe1 = abs(fr1) * abs(e1/f1)
-    fr1 += np.random.randn(fr1.shape[0])*fe1
-
-    # generate mock light curve for f1
-    sigma_drw, tau_drw = np.exp(sample2[ir2[i], :])
-    ts, fs = genlc_psd_drw([sigma_drw, tau_drw, 1.0e-100], num2, dt2, 1.0e-10)
-    ts += t2[0]
-
-    fr2  = np.interp(t2, ts, fs)
-    mu2  = np.mean(fr2)
-    std2 = np.std(fr2)
-    fr2 = (fr2-mu2)/std2 * std2_data_corr + mu2_data
-    fe2 = abs(fr2) * abs(e2/f2)
-    fr2 += np.random.randn(fr2.shape[0])*fe2
-    
-    for j in range(t1.shape[0]):
-      fr1_cython[j] = fr1[j]
-    for j in range(t2.shape[0]):
-      fr2_cython[j] = fr2[j]
-
-    # call c function 
-    ciccf_oneway_peak(tr1_cython, fr1_cython, t1.shape[0], 
-               tr2_cython, fr2_cython, t2.shape[0], 
-               ntau, tau_beg, tau_end,
-               tau_cython, ccf_cython, &rmax, &tau_peak)
-    
-    rmax_sim[i] = rmax
-
-    if doshow and i == 0:
-      tau = np.zeros(ntau)
-      ccf = np.zeros(ntau)
-      for j in range(ntau):
-        tau[j] = tau_cython[j]
-        ccf[j] = ccf_cython[j]
-      
-      import matplotlib.pyplot as plt
-      fig = plt.figure()
-      ax = fig.add_subplot(221)
-      ax.errorbar(t1, f1, yerr=e1)
-      ax.errorbar(t1, fr1, yerr=fe1)
-
-      ax = fig.add_subplot(223)
-      ax.errorbar(t2, f2, yerr=e2)
-      ax.errorbar(t2, fr2, yerr=fe2)
-
-      ax = fig.add_subplot(122)
-      ax.plot(tau, ccf)
-
-      plt.show()
-      
-  print("Done.")
-  
-  # counts number of rmax > rmax_data
-  ic = 0
-  for i in range(nsim):
-    if rmax_sim[i] >= rmax_data:
-      ic += 1
-
-  prob = ic*1.0/nsim
-  print("Prob: %.4f"%prob)
-
-  if doshow:
-    import matplotlib.pyplot as plt 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.hist(rmax_sim, bins=30)
-    ax.axvline(x=rmax_data, ls='--', color='red')
-    plt.show()
-
-  PyMem_Free(tr1_cython)
-  PyMem_Free(tr2_cython)
-  PyMem_Free(fr1_cython)
-  PyMem_Free(fr2_cython)
-  PyMem_Free(tau_cython)
-  PyMem_Free(ccf_cython)
-
-  return prob, rmax_sim
+  return iccf_peak_significance_proto(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
+                                      nsim=nsim, ways=1, doshow=doshow)

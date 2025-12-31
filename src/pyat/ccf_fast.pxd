@@ -25,6 +25,11 @@ cdef extern from "libccf.h":
               double threshold, char mode, int ignore_warning,                               \
               double tau[], double ccf[], double *rmax, double *tau_peak, double *tau_cent   \
             )  
+  
+  void ciccf_peak_proto(double t1[], double f1[], int n1, double t2[], double f2[], int n2,  \
+                int ntau, double tau_beg, double tau_end, int ways,                          \
+                double tau[], double ccf[], double *rmax, int *idx_max, double *tau_peak     \
+              )
 
   void ciccf_peak(double t1[], double f1[], int n1, double t2[], double f2[], int n2,        \
                 int ntau, double tau_beg, double tau_end,                                    \
