@@ -568,7 +568,7 @@ cdef iccf_peak_significance_proto(
   
   cdef double prob=0.0
   cdef double sigma_drw, tau_drw
-  cdef double dt1, dt2, mu1_data, var1_data, mu2_data, var2_data, 
+  cdef double dt1, dt2, dt, mu1_data, var1_data, mu2_data, var2_data, 
   cdef double mean_e1_data, mean_e2_data, std1_data_corr, std2_data_corr
   cdef double mu1, std1, mu2, std2
   cdef int i, j, ic, num1, num2, idx_max
@@ -609,8 +609,24 @@ cdef iccf_peak_significance_proto(
              tau_cython, ccf_data_cython, &rmax_data, &idx_max, &tau_peak_data)
 
   # determine the minimum sampling interval
-  dt1 = np.quantile(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1], q=0.05)
-  dt2 = np.quantile(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1], q=0.05)
+  # dt1 = np.quantile(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1], q=0.05)
+  # dt2 = np.quantile(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1], q=0.05)
+  # dt1 = np.min(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1])
+  # dt2 = np.min(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1])
+  
+  # find out the minimum nozero interval
+  dt1 = t1[1]-t1[0]
+  for i in range(2, t1.shape[0]):
+    dt = t1[i]-t1[i-1]
+    if  dt != 0 and dt < dt1:
+      dt1 = dt 
+
+  dt2 = t2[1]-t2[0]
+  for i in range(2, t2.shape[0]):
+    dt = t2[i]-t2[i-1]
+    if  dt != 0 and dt < dt2:
+      dt2 = dt 
+
   num1 = int((t1[t1.shape[0]-1]-t1[0])/dt1)
   num2 = int((t2[t2.shape[0]-1]-t2[0])/dt2)
 
@@ -732,6 +748,7 @@ cdef iccf_peak_significance_proto(
     ax.axvline(x=rmax_data, ls='--', color='red')
     ax.set_xlabel("r_max")
     ax.set_ylabel("Histogram")
+    ax.set_title("%.3f"%prob)
     plt.show()
 
   PyMem_Free(tr1_cython)
