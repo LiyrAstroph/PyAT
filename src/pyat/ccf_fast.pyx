@@ -609,23 +609,25 @@ cdef iccf_peak_significance_proto(
              tau_cython, ccf_data_cython, &rmax_data, &idx_max, &tau_peak_data)
 
   # determine the minimum sampling interval
-  # dt1 = np.quantile(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1], q=0.05)
-  # dt2 = np.quantile(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1], q=0.05)
+  # do not use minimum interval, because sometimes it is too tiny, 
+  # leading to a huge number of points, very slow!
   # dt1 = np.min(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1])
   # dt2 = np.min(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1])
+  dt1 = np.quantile(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1], q=0.01)
+  dt2 = np.quantile(t2[1:t2.shape[0]]-t2[0:t2.shape[0]-1], q=0.01)
+  if dt1 == 0:
+    dt1 = t1[1]-t1[0]
+    for i in range(2, t1.shape[0]):
+      dt = t1[i]-t1[i-1]
+      if  dt != 0 and dt < dt1:
+        dt1 = dt 
   
-  # find out the minimum nozero interval
-  dt1 = t1[1]-t1[0]
-  for i in range(2, t1.shape[0]):
-    dt = t1[i]-t1[i-1]
-    if  dt != 0 and dt < dt1:
-      dt1 = dt 
-
-  dt2 = t2[1]-t2[0]
-  for i in range(2, t2.shape[0]):
-    dt = t2[i]-t2[i-1]
-    if  dt != 0 and dt < dt2:
-      dt2 = dt 
+  if dt2 == 0:
+    dt2 = t2[1]-t2[0]
+    for i in range(2, t2.shape[0]):
+      dt = t2[i]-t2[i-1]
+      if  dt != 0 and dt < dt2:
+        dt2 = dt 
 
   num1 = int((t1[t1.shape[0]-1]-t1[0])/dt1)
   num2 = int((t2[t2.shape[0]-1]-t2[0])/dt2)
