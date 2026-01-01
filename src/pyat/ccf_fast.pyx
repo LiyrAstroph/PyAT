@@ -593,6 +593,7 @@ cdef iccf_peak_significance_proto(
   cdef double *fr2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
   cdef double *tau_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
   cdef double *ccf_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
+  cdef double *ccf_data_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
 
   for i in range(t1.shape[0]):
     tr1_cython[i] = t1[i]
@@ -605,7 +606,7 @@ cdef iccf_peak_significance_proto(
   ciccf_peak_proto(tr1_cython, fr1_cython, t1.shape[0], 
              tr2_cython, fr2_cython, t2.shape[0], 
              ntau, tau_beg, tau_end, ways,
-             tau_cython, ccf_cython, &rmax_data, &idx_max, &tau_peak_data)
+             tau_cython, ccf_data_cython, &rmax_data, &idx_max, &tau_peak_data)
 
   # determine the minimum sampling interval
   dt1 = np.quantile(t1[1:t1.shape[0]]-t1[0:t1.shape[0]-1], q=0.05)
@@ -671,29 +672,48 @@ cdef iccf_peak_significance_proto(
     
     rmax_sim[i] = rmax
 
-    if doshow and i == 0:
+    if doshow and i == 0:     
+      import matplotlib.pyplot as plt
+      fig = plt.figure(figsize=(12, 6))
+      ax1 = fig.add_subplot(221)
+      ax1.errorbar(t1, f1, yerr=e1)
+      ax1.errorbar(t1, fr1, yerr=fe1)
+      ax1.set_xlabel("Time")
+      ax1.set_ylabel("Flux")
+      xlim1 = ax1.get_xlim()
+
+      ax2 = fig.add_subplot(223)
+      ax2.errorbar(t2, f2, yerr=e2, label='data')
+      ax2.errorbar(t2, fr2, yerr=fe2, label='mock', color='C1')
+      ax2.set_xlabel("Time")
+      ax2.set_ylabel("Flux")
+      xlim2 = ax2.get_xlim()
+      x1 = min(xlim1[0], xlim2[0])
+      x2 = max(xlim1[1], xlim2[1])
+      ax1.set_xlim(x1, x2)
+      ax2.set_xlim(x1, x2)
+      ax2.legend()
+
+      ax = fig.add_subplot(122)
+
       tau = np.zeros(ntau)
       ccf = np.zeros(ntau)
       for j in range(ntau):
         tau[j] = tau_cython[j]
+        ccf[j] = ccf_data_cython[j]
+      ax.plot(tau, ccf, color='C0', label='data')
+
+      for j in range(ntau):
         ccf[j] = ccf_cython[j]
-      
-      import matplotlib.pyplot as plt
-      fig = plt.figure()
-      ax = fig.add_subplot(221)
-      ax.errorbar(t1, f1, yerr=e1)
-      ax.errorbar(t1, fr1, yerr=fe1)
+      ax.plot(tau, ccf, color='C1', label='mock')
 
-      ax = fig.add_subplot(223)
-      ax.errorbar(t2, f2, yerr=e2)
-      ax.errorbar(t2, fr2, yerr=fe2)
-
-      ax = fig.add_subplot(122)
-      ax.plot(tau, ccf)
+      ax.set_xlabel("Time Lag")
+      ax.set_ylabel("ICCF")
+      ax.legend()
 
       plt.show()
       
-  print("Done.")
+  print("done.")
   
   # counts number of rmax > rmax_data
   ic = 0
@@ -710,6 +730,8 @@ cdef iccf_peak_significance_proto(
     ax = fig.add_subplot(111)
     plt.hist(rmax_sim, bins=30)
     ax.axvline(x=rmax_data, ls='--', color='red')
+    ax.set_xlabel("r_max")
+    ax.set_ylabel("Histogram")
     plt.show()
 
   PyMem_Free(tr1_cython)
@@ -718,6 +740,7 @@ cdef iccf_peak_significance_proto(
   PyMem_Free(fr2_cython)
   PyMem_Free(tau_cython)
   PyMem_Free(ccf_cython)
+  PyMem_Free(ccf_data_cython)
 
   return prob, rmax_sim
   

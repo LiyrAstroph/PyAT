@@ -17,7 +17,6 @@ from celerite.modeling import Model
 from numpy import fft 
 
 import emcee
-import corner
 
 def neg_log_like(params, y, gp):
     gp.set_parameter_vector(params)
@@ -132,7 +131,7 @@ def drw_modeling(t, y, yerr, doshow=False):
         plt.fill_between(t_rec+t[0], (pred_mean+pred_std)/10**scale, (pred_mean-pred_std)/10**scale, 
                          color=color, alpha=0.3, edgecolor="none")
         plt.xlabel("Time")
-        plt.ylabel("Flux ($10^{%d}$)"%(scale))
+        plt.ylabel("Flux")
         ax = fig.add_axes((0.72, 0.1, 0.2, 0.8))
         y_intp = np.interp(t_new, t_rec, pred_mean)
         ax.hist((y_new-y_intp)/yerr_new, orientation="horizontal")
@@ -163,6 +162,7 @@ def drw_modeling(t, y, yerr, doshow=False):
     sample[:, 1] = -sample[:, 1]
 
     if doshow:
+        import corner
         corner.corner(sample, labels=["ln(sigma)", "ln(tau)"])
         plt.show()
     

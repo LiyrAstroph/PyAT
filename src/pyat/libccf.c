@@ -387,7 +387,7 @@ void ciccf_mc_proto(double t1[], double f1[], double e1[], int n1,
     tau_peak_mc[i] = tau_peak;
     tau_cent_mc[i] = tau_cent;
   }
-  printf("Done\n");
+  printf("done\n");
   
   gsl_rng_free(cpyat_gsl_r);
   free(counts);
