@@ -639,8 +639,16 @@ cdef iccf_peak_significance_proto(
   mean_e2_data = np.mean(e2**2)
   var1_data = np.var(f1, mean=mu1_data)
   var2_data = np.var(f2, mean=mu2_data)
-  std1_data_corr = np.sqrt(var1_data - mean_e1_data)
-  std2_data_corr = np.sqrt(var2_data - mean_e2_data)
+
+  if(mean_e1_data >= var1_data): # variance is caused by noise
+    std1_data_corr = 0.0  
+  else:
+    std1_data_corr = np.sqrt(var1_data - mean_e1_data)
+
+  if(mean_e2_data >= var2_data): # variance is caused by noise
+    std2_data_corr = 0.0
+  else:
+    std2_data_corr = np.sqrt(var2_data - mean_e2_data)
 
   # get DRW parameter sample 
   sample1 = drw_modeling(t1, f1, e1, doshow=doshow)

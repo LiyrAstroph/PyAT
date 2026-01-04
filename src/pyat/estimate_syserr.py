@@ -42,6 +42,8 @@ def estimate_syserr_median_filter(y, yerr, size=5, return_yfilter=False):
   err = np.mean(yerr**2)
 
   if dev < err:
+    print("Mean std after median filtering:%.4f\nMean data error:%.4f"%(np.sqrt(dev), err))
+    print("Wanring: data errors might be overestimated!")
     syserr = 0.0
   else:
     syserr =  np.sqrt(dev - err)
@@ -102,6 +104,8 @@ def estimate_syserr(t, y, yerr, size=5, return_yfilter=False):
     err = np.mean(yerr[idx]**2)
 
     if dev < err:
+      print("Mean std after median filtering: %.4f\nMean data error: %.4f"%(np.sqrt(dev), np.sqrt(err)))
+      print("WARNING: data errors might be overestimated!")
       syserr = 0.0
     else:
       syserr = np.sqrt(dev - err)
