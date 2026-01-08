@@ -229,9 +229,12 @@ def get_line_widths(wave, prof, line_win=None, flag_con_sub=False, con_sub_win=N
     ax = fig.add_subplot(111)
     ax.plot(wave, prof_sub)
 
-    ylim = ax.get_ylim()   
-    ax.fill_between(x=line_win, y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
-    
+    ylim = ax.get_ylim()
+    if line_win is not None:   
+      ax.fill_between(x=line_win, y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
+    else:
+      ax.fill_between(x=[wave[0], wave[-1]], y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
+
     if flag_con_sub == True:
       ax.plot(wave, prof)
       ax.fill_between(x=con_sub_win[0:2], y1=[ylim[0], ylim[0]], y2=[ylim[1], ylim[1]], color='gainsboro', zorder=0)
