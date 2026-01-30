@@ -10,7 +10,8 @@
 #===================================================================================#
 
 __all__ = ["iccf", "iccf_mc", "iccf_oneway", "iccf_mc_oneway",
-           "iccf_peak_significance", "iccf_oneway_peak_significance"
+           "iccf_peak_significance", "iccf_oneway_peak_significance",
+           "iccf_peak", "iccf_peak_oneway"
           ]
 
 import numpy as np
@@ -140,6 +141,106 @@ cdef iccf_proto(
   PyMem_Free(ccf_cython)
 
   return tau, ccf, rmax, tau_peak, tau_cent
+
+cdef iccf_peak_proto(
+  np.ndarray[double, ndim=1] t1, 
+  np.ndarray[double, ndim=1] f1, 
+  np.ndarray[double, ndim=1] t2, 
+  np.ndarray[double, ndim=1] f2, 
+  int ntau, 
+  double tau_beg, 
+  double tau_end, 
+  int ways=0):
+  """
+  Python interface for interpolated cross-correlation function,
+  only calculate the peak ccf and time lag
+
+  Parameters
+  ----------
+  t1 : numpy array
+    time of first light curve
+  f1 : numpy array 
+    flux of first light curve
+  t2 : numpy array
+    time of second light curve
+  f2 : numpy array 
+    flux of second light curve
+  ntau : int
+    number of time lag point
+  tau_beg : double 
+    starting time lag
+  tau_end : double
+    ending time lag 
+  ways : int 
+    specifiy two-way or one-way iccf
+
+  Returns
+  -------
+  tau : numpy array
+       time lag array
+  ccf : numpy array
+       cross-correlation coefficient array
+  rmax : double
+       peak cross-correlation coefficient
+  idx_max : int
+       index of peak cross-correlation coefficient
+  tau_peak : double
+       peak time lag
+  """
+  
+  if t1.shape[0] != f1.shape[0]:
+    raise ValueError("t1 and f1 should have the same size!")
+  
+  if t2.shape[0] != f2.shape[0]:
+    raise ValueError("t2 and f2 should have the same size!")
+  
+  cdef np.ndarray[double, ndim=1] tau = np.linspace(tau_beg, tau_end, ntau)
+  cdef np.ndarray[double, ndim=1] ccf = np.zeros(ntau)
+  cdef double rmax, tau_peak
+  
+  cdef double *t1_cython = <double *>PyMem_Malloc(t1.shape[0]*sizeof(double))
+  cdef double *f1_cython = <double *>PyMem_Malloc(t1.shape[0]*sizeof(double))
+  cdef double *t2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
+  cdef double *f2_cython = <double *>PyMem_Malloc(t2.shape[0]*sizeof(double))
+
+  cdef double *tau_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
+  cdef double *ccf_cython = <double *>PyMem_Malloc(ntau*sizeof(double))
+
+  cdef int i, idx_max
+
+  if t2[0] > t1[t1.shape[0]-1] or t1[0] > t2[t2.shape[0]-1]:
+    print("no overlap, set ccf to zero.")
+    for i in range(ntau):
+      tau[i] = tau_beg + (tau_end-tau_beg)/(ntau-1) * i 
+      ccf[i] = 0.0
+    return tau, ccf, -10.0, 0.0, 0.0
+
+  for i in range(t1.shape[0]):
+    t1_cython[i] = t1[i]
+    f1_cython[i] = f1[i]
+  
+  for i in range(t2.shape[0]):
+    t2_cython[i] = t2[i]
+    f2_cython[i] = f2[i]
+
+  # call c function 
+  ciccf_peak_proto(t1_cython, f1_cython, t1.shape[0], t2_cython, f2_cython, t2.shape[0],
+        ntau, tau_beg, tau_end, ways,
+        tau_cython, ccf_cython, &rmax, &idx_max, &tau_peak)
+  
+  for i in range(ntau):
+    tau[i] = tau_cython[i]
+    ccf[i] = ccf_cython[i]
+
+  PyMem_Free(t1_cython)
+  PyMem_Free(f1_cython)
+  PyMem_Free(t2_cython)
+  PyMem_Free(f2_cython)
+
+  PyMem_Free(tau_cython)
+  PyMem_Free(ccf_cython)
+
+  return tau, ccf, rmax, tau_peak
 
 #============================================================================
 # proto for iccf mc
@@ -322,6 +423,54 @@ cpdef iccf(
   """
   return iccf_proto(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
                     threshold=threshold, mode=mode, ignore_warning=ignore_warning, ways=0)
+#============================================================================
+# iccf_peak
+# directly call iccf_peak_proto
+#============================================================================
+cpdef iccf_peak(
+  np.ndarray[double, ndim=1] t1, 
+  np.ndarray[double, ndim=1] f1, 
+  np.ndarray[double, ndim=1] t2, 
+  np.ndarray[double, ndim=1] f2, 
+  int ntau, 
+  double tau_beg, 
+  double tau_end
+  ):
+  """
+  Python interface for interpolated cross-correlation function,
+  only calculate the peak ccf and time lag 
+
+  Parameters
+  ----------
+  t1 : numpy array
+    time of first light curve
+  f1 : numpy array 
+    flux of first light curve
+  t2 : numpy array
+    time of second light curve
+  f2 : numpy array 
+    flux of second light curve
+  ntau : int
+    number of time lag point
+  tau_beg : double 
+    starting time lag
+  tau_end : double
+    ending time lag 
+  ways : int 
+    specifiy two-way or one-way iccf
+
+  Returns
+  -------
+  tau : numpy array
+       time lag array
+  ccf : numpy array
+       cross-correlation coefficient array
+  rmax : double
+       peak cross-correlation coefficient
+  tau_peak : double
+       peak time lag
+  """
+  return iccf_peak_proto(t1, f1, t2, f2, ntau, tau_beg, tau_end, ways=0)
 
 #============================================================================
 # iccf_mc
@@ -446,6 +595,55 @@ cpdef iccf_oneway(
   """
   return iccf_proto(t1, f1, t2, f2, ntau, tau_beg, tau_end, 
                     threshold=threshold, mode=mode, ignore_warning=ignore_warning, ways=1)
+
+#============================================================================
+# iccf_peak_oneway
+# directly call iccf_peak_proto
+#============================================================================
+cpdef iccf_peak_oneway(
+  np.ndarray[double, ndim=1] t1, 
+  np.ndarray[double, ndim=1] f1, 
+  np.ndarray[double, ndim=1] t2, 
+  np.ndarray[double, ndim=1] f2, 
+  int ntau, 
+  double tau_beg, 
+  double tau_end
+  ):
+  """
+  Python interface for interpolated cross-correlation function,
+  only calculate the peak ccf and time lag 
+
+  Parameters
+  ----------
+  t1 : numpy array
+    time of first light curve
+  f1 : numpy array 
+    flux of first light curve
+  t2 : numpy array
+    time of second light curve
+  f2 : numpy array 
+    flux of second light curve
+  ntau : int
+    number of time lag point
+  tau_beg : double 
+    starting time lag
+  tau_end : double
+    ending time lag 
+  ways : int 
+    specifiy two-way or one-way iccf
+
+  Returns
+  -------
+  tau : numpy array
+       time lag array
+  ccf : numpy array
+       cross-correlation coefficient array
+  rmax : double
+       peak cross-correlation coefficient
+  tau_peak : double
+       peak time lag
+  """
+  return iccf_peak_proto(t1, f1, t2, f2, ntau, tau_beg, tau_end, ways=1)
 
 #============================================================================
 # iccf mc oneway
