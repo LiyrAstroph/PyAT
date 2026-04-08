@@ -44,7 +44,7 @@ def drw_recon(t, y, yerr):
                 Outliers removed arrays
     """
     # first normalize the light curve to better initialize the parameters
-    scale = -np.ceil(np.log10(np.median(y)))
+    scale = -np.ceil(np.log10(np.max(y)-np.min(y)))
     y_new = y * 10.0**(scale) 
     yerr_new = yerr * 10.0**(scale) 
 
@@ -90,7 +90,7 @@ def drw_modeling(t, y, yerr, doshow=False):
     :param doshow: whether show figures
     """
     # first normalize the light curve 
-    scale = -np.ceil(np.log10(np.median(y)))
+    scale = -np.ceil(np.log10(np.max(y)-np.min(y)))
     y_new = y * 10.0**(scale) 
     yerr_new = yerr * 10.0**(scale) 
 
