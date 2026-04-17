@@ -80,7 +80,7 @@ def drw_recon(t, y, yerr):
 
     return t_rec+t0, pred_mean/10.0**scale, pred_std/10.0**scale
 
-def drw_modeling(t, y, yerr, doshow=False):
+def drw_modeling(t, y, yerr, doshow=False, return_prob=False):
     """
     Determine DRW parameters for a given light curve
     
@@ -166,7 +166,11 @@ def drw_modeling(t, y, yerr, doshow=False):
         corner.corner(sample, labels=["ln(sigma)", "ln(tau)"])
         plt.show()
     
-    return sample
+    if return_prob:
+        prob = sampler.flatlnprobability
+        return sample, prob
+    else:
+        return sample
 
 #=======================================================
 # DRW PSD function
