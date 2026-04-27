@@ -6,7 +6,7 @@
 #  2023-08-31
 #===================================================================================#
 
-__all__ = ["drw_recon", "drw_modeling", "genlc_psd_pow", "genlc_psd_drw"]
+__all__ = ["drw_recon", "drw_modeling", "drw_modeling_fast", "genlc_psd_pow", "genlc_psd_drw"]
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -163,7 +163,8 @@ def drw_modeling(t, y, yerr, doshow=False, return_prob=False):
 
     if doshow:
         import corner
-        corner.corner(sample, labels=["ln(sigma)", "ln(tau)"])
+        corner.corner(sample, labels=["ln(sigma)", "ln(tau)"], 
+                      truths=[0.5*initial_params[0]- np.log(10.0**scale), -initial_params[1]])
         plt.show()
     
     if return_prob:
@@ -171,6 +172,48 @@ def drw_modeling(t, y, yerr, doshow=False, return_prob=False):
         return sample, prob
     else:
         return sample
+
+def drw_modeling_fast(t, y, yerr):
+    """
+    Determine DRW parameters for a given light curve
+    
+    :param t: time
+    :param y: flux
+    :param yerr: error
+    :param doshow: whether show figures
+    """
+    # first normalize the light curve 
+    scale = -np.ceil(np.log10(np.max(y)-np.min(y)))
+    y_new = y * 10.0**(scale) 
+    yerr_new = yerr * 10.0**(scale) 
+
+    t_new = t - t[0] 
+
+    # Damped random walk model
+    log_a = 1.5
+    log_c = -np.log((t_new[-1]-t_new[0])/2.0)
+    bounds2 = dict(log_a=(-10, 10), log_c=(-np.log(t_new[-1]-t_new[0]), 0))
+    kernel2 = terms.RealTerm(log_a=log_a, log_c=log_c, bounds=bounds2)
+    kernel = kernel2
+
+    # build celerite model
+    gp = celerite.GP(kernel, mean=np.mean(y_new))
+    gp.compute(t_new, yerr_new)
+
+    initial_params = gp.get_parameter_vector()
+    bounds = gp.get_parameter_bounds()
+
+    r = minimize(neg_log_like, initial_params, method="L-BFGS-B", bounds=bounds, args=(y_new, gp))
+    initial_params = gp.get_parameter_vector()
+    # print("initial guess:", initial_params)
+    # print("initial guess: ln(sigma)=%.4f, ln(tau)=%.4f."%(0.5*initial_params[0]- np.log(10.0**scale), 
+    #                                                       -initial_params[1]))
+
+    sigma = 0.5*initial_params[0]- np.log(10.0**scale)
+    tau = -initial_params[1]
+
+    return sigma, tau
+    
 
 #=======================================================
 # DRW PSD function

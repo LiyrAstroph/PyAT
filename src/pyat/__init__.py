@@ -14,7 +14,7 @@ __all__ = ["remove_outliers",
            "iccf", "iccf_mc", "iccf_oneway", "iccf_mc_oneway", 
            "iccf_peak", "iccf_peak_oneway",
            "iccf_peak_significance", "iccf_oneway_peak_significance",
-           "drw_recon", "drw_modeling", "genlc_psd_drw", "genlc_psd_pow",
+           "drw_recon", "drw_modeling", "drw_modeling_fast", "genlc_psd_drw", "genlc_psd_pow",
            "detrend",
            "renin", "rebin_sig",
            "load_template", "list_templates",
@@ -33,7 +33,7 @@ from pyat.ccf import iccf_slow, iccf_oneway_slow, iccf_mc_slow, iccf_mc_oneway_s
 from pyat.ccf_fast import iccf, iccf_mc, iccf_oneway, iccf_mc_oneway,                     \
                           iccf_peak_significance, iccf_oneway_peak_significance,          \
                           iccf_peak, iccf_peak_oneway
-from pyat.drw import drw_recon, drw_modeling, genlc_psd_drw, genlc_psd_pow
+from pyat.drw import drw_recon, drw_modeling, drw_modeling_fast, genlc_psd_drw, genlc_psd_pow
 from pyat.detrend import detrend
 from pyat.rebin import rebin, rebin_sig
 from pyat.loadtemplate import load_template, list_templates
