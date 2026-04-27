@@ -6,7 +6,8 @@
 #  2023-08-31
 #===================================================================================#
 
-__all__ = ["drw_recon", "drw_modeling", "drw_modeling_fast", "genlc_psd_pow", "genlc_psd_drw"]
+__all__ = ["drw_recon", "drw_modeling", "drw_modeling_fast", 
+           "genlc_psd_pow", "genlc_psd_drw", "genlc_psd_drw_data"]
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -161,14 +162,18 @@ def drw_modeling(t, y, yerr, doshow=False, return_prob=False):
     sample[:, 0] =  sample[:, 0]*0.5 - np.log(10.0**scale)
     sample[:, 1] = -sample[:, 1]
 
+    prob = sampler.flatlnprobability
+    params_bestfit = sample[np.argmax(prob), :]
+
     if doshow:
         import corner
-        corner.corner(sample, labels=["ln(sigma)", "ln(tau)"], 
-                      truths=[0.5*initial_params[0]- np.log(10.0**scale), -initial_params[1]])
+        fig = corner.corner(sample, labels=["ln(sigma)", "ln(tau)"])
+        corner.overplot_lines(fig, [0.5*initial_params[0]- np.log(10.0**scale), -initial_params[1]], color='C1', label='initial guess')
+        corner.overplot_lines(fig, params_bestfit, color="C2", ls='--', label='best-fit')
+        fig.axes[0].legend()
         plt.show()
     
     if return_prob:
-        prob = sampler.flatlnprobability
         return sample, prob
     else:
         return sample
@@ -332,3 +337,31 @@ def genlc_psd_drw(model, nd, DT, freq_limit):
     fs = fs*norm
 
     return ts[::W], fs[::W]  
+
+def genlc_psd_drw_data(model, data):
+    """
+    Generate light curve with given DRW parameters and data sampling,variation amplitude,
+    and noise level.
+    """
+    model_drw = [model[0], model[1], 1.0e-100]  # sigma, tau, cnoise
+    dt = data[1, 0] - data[0, 0]
+    tspan = data[-1, 0] - data[0, 0]
+    num=int(tspan/dt)
+    ts, fs = genlc_psd_drw(model_drw, num, dt, 1.0/tspan*1.0e-10)
+    ts += data[0, 0]
+
+    # interpolate to observed data points 
+    # ensure the same variation amplitude, relative errors as the observed data
+    fr = np.interp(data[:, 0], ts, fs)
+    mu = np.mean(fr)
+    std = np.std(fr)
+    mu_data = np.mean(data[:, 1])
+    std_data = np.std(data[:, 1])
+    de_err_data = np.mean(data[:, 2]**2) 
+    fr = (fr-mu)/std * np.sqrt(std_data**2-de_err_data) + mu_data
+    fe = abs(fr) * abs(data[:, 2]/data[:, 1])
+    fr += np.random.randn(fr.shape[0]) * fe
+
+    # scale the original mock light curve accordingly
+    # fs = (fs-mu)/std * np.sqrt(std_data**2-de_err_data) + mu_data
+    return fr, fe
