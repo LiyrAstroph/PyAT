@@ -7,3 +7,14 @@ requires = [
     "scipy",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyat"
+dynamic = ["version"]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx>=7.0",
+    "numpydoc>=1.5",
+    "sphinx-rtd-theme>=1.3",
+]

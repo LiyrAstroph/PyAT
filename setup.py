@@ -13,20 +13,21 @@ from numpy import get_include
 from glob import glob
 import os
 
-basedir = os.path.dirname(os.path.abspath(__file__))
+# use relative path (relative to setup.py)
+ext_dir = "src/pyat"
 
 extensions = cythonize([
     Extension(name="pyat.rebin", 
-              sources=glob(os.path.join(basedir, "src/pyat", "rebin.pyx"))
+              sources=glob(os.path.join(ext_dir, "rebin.pyx"))
               ),
               
     Extension(name="pyat.ccf_fast", 
-              sources=[os.path.join(basedir, "src/pyat", "ccf_fast.pyx")]
-                    + [os.path.join(basedir, "src/pyat", "libccf.c")]
-                    + glob(os.path.join(basedir, "src/pyat", "gsl*.c")),
-              depends=[os.path.join(basedir, "src/pyat", "ccf_fast.pxd")]
-                    + [os.path.join(basedir, "src/pyat", "libccf.h")]
-                    + glob(os.path.join(basedir, "src/pyat", "gsl*.h")),
+              sources=[os.path.join(ext_dir, "ccf_fast.pyx")]
+                    + [os.path.join(ext_dir, "libccf.c")]
+                    + glob(os.path.join(ext_dir, "gsl*.c")),
+              depends=[os.path.join(ext_dir, "ccf_fast.pxd")]
+                    + [os.path.join(ext_dir, "libccf.h")]
+                    + glob(os.path.join(ext_dir, "gsl*.h")),
               libraries=["c", "m"],
               include_dirs=[get_include()]
               ),

@@ -20,3 +20,4 @@ docs
 !template
 template/*
 !template/*.txt
+!.readthedocs.yaml
