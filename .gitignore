@@ -21,3 +21,12 @@ docs
 template/*
 !template/*.txt
 !.readthedocs.yaml
+!docs/
+docs/*
+!docs/source
+docs/source/*
+!docs/source/*.rst
+!docs/source/conf.py
+!docs/source/index.rst
+!docs/Makefile
+
