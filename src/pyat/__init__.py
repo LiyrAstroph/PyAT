@@ -5,7 +5,8 @@
 #  Yan-Rong Li, liyropt@gmail.com
 #  2023-08-31
 #===================================================================================#
-__all__ = ["remove_outliers", 
+__all__ = ["version", "__version__",
+           "remove_outliers", 
            "format_mica", "load_mica",
            "estimate_syserr", "estimate_syserr_median_filter",
            "get_mean_rms", "get_line_widths", 
@@ -24,6 +25,8 @@ __all__ = ["remove_outliers",
            "cosmology",
            "smooth_savgol"]
 # Developed by Yan-Rong Li, liyanrong@ihep.ac.cn
+
+from ._version import __version__, version
 
 from pyat.remove_outliers import remove_outliers
 from pyat.format_mica import format_mica, load_mica
