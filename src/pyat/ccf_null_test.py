@@ -6,13 +6,13 @@
 #  2023-08-31
 #===================================================================================#
 
-__all__ = ["iccf_ndeff", "iccf_sigma_null", "iccf_null_rmax"]
+__all__ = ["iccf_ndeff", "iccf_sigma_null", "iccf_prmax_null"]
 
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import special as sp
 
-from .ccf_fast import iccf
+from .ccf import iccf
 from .drw import drw_modeling
 
 def _ax_forward(x):
@@ -191,7 +191,7 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
 
     # calculate iccf
     tau, ccf, rmax, tau_peak, tau_cent = iccf(t1, y1, t2, y2, ntau, tau_beg, tau_end)
-    print("rmax: %.2f at tau=%.2f"%(rmax, tau_peak))
+    print("rmax: %.2f, zmax: %.2f at tau=%.2f"%(rmax, zmax,tau_peak))
 
     # DRW fits 
     sample1 = drw_modeling(t1, y1, ye1, doshow=True)
@@ -267,7 +267,7 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
 
     return tau, sigma_null
 
-def iccf_null_rmax(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
+def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
                    gapx=None, gapy=None, doplot=False):
     """
     Estimate the null hypothesis probability of the ICCF rmax.

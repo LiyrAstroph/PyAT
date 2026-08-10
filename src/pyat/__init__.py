@@ -15,7 +15,7 @@ __all__ = ["version", "__version__",
            "iccf", "iccf_mc", "iccf_oneway", "iccf_mc_oneway", 
            "iccf_peak", "iccf_peak_oneway",
            "iccf_peak_significance", "iccf_oneway_peak_significance",
-           "iccf_ndeff", "iccf_sigma_null", "iccf_null_rmax",
+           "iccf_ndeff", "iccf_sigma_null", "iccf_prmax_null",
            "drw_recon", "drw_modeling", "drw_modeling_fast", 
            "genlc_psd_drw", "genlc_psd_pow", "genlc_psd_drw_data",
            "detrend",
@@ -38,7 +38,7 @@ from pyat.ccf_old import iccf_slow, iccf_oneway_slow, iccf_mc_slow, iccf_mc_onew
 from pyat.ccf import iccf, iccf_mc, iccf_oneway, iccf_mc_oneway,                     \
                           iccf_peak_significance, iccf_oneway_peak_significance,          \
                           iccf_peak, iccf_peak_oneway
-from pyat.ccf_null_test import iccf_ndeff, iccf_sigma_null, iccf_null_rmax
+from pyat.ccf_null_test import iccf_ndeff, iccf_sigma_null, iccf_prmax_null
 from pyat.drw import drw_recon, drw_modeling, drw_modeling_fast,                          \
                      genlc_psd_drw, genlc_psd_pow, genlc_psd_drw_data
 from pyat.detrend import detrend
