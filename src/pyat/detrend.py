@@ -54,7 +54,11 @@ def detrend(x, y, yerr, return_trend=False, order=1):
     yd -= res.x[2] * (x-xmed)**2
 
   if res.success:
-    print("trend: a0 + a1 * [t - (t_beg+t_end)/2] + a2 * [t - (t_beg+t_end)/2]^2")
+    print("trend: a0 +", end="")
+    for i in range(1, order+1):
+      print(f" a{i} * [t - (t_beg+t_end)/2]^{i}", end="")
+    print()
+
     for i in range(order+1):
       print("a{:d}={:.2e}".format(i, res.x[i]), end=" ")
     print()
