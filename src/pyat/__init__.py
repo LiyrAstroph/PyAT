@@ -15,6 +15,7 @@ __all__ = ["version", "__version__",
            "iccf", "iccf_mc", "iccf_oneway", "iccf_mc_oneway", 
            "iccf_peak", "iccf_peak_oneway",
            "iccf_peak_significance", "iccf_oneway_peak_significance",
+           "iccf_ndeff", "iccf_sigma_null",
            "drw_recon", "drw_modeling", "drw_modeling_fast", 
            "genlc_psd_drw", "genlc_psd_pow", "genlc_psd_drw_data",
            "detrend",
@@ -33,10 +34,11 @@ from pyat.format_mica import format_mica, load_mica
 from pyat.estimate_syserr import estimate_syserr, estimate_syserr_median_filter
 from pyat.mean_rms_spectra import get_mean_rms, get_line_widths
 from pyat.rebin_spectrum import rebin_spectrum, rebin_spectrum_with_error, get_bin_edge
-from pyat.ccf import iccf_slow, iccf_oneway_slow, iccf_mc_slow, iccf_mc_oneway_slow
-from pyat.ccf_fast import iccf, iccf_mc, iccf_oneway, iccf_mc_oneway,                     \
+from pyat.ccf_old import iccf_slow, iccf_oneway_slow, iccf_mc_slow, iccf_mc_oneway_slow
+from pyat.ccf import iccf, iccf_mc, iccf_oneway, iccf_mc_oneway,                     \
                           iccf_peak_significance, iccf_oneway_peak_significance,          \
                           iccf_peak, iccf_peak_oneway
+from pyat.ccf_null_test import iccf_ndeff, iccf_sigma_null
 from pyat.drw import drw_recon, drw_modeling, drw_modeling_fast,                          \
                      genlc_psd_drw, genlc_psd_pow, genlc_psd_drw_data
 from pyat.detrend import detrend

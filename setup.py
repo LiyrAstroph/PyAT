@@ -21,11 +21,11 @@ extensions = cythonize([
               sources=glob(os.path.join(ext_dir, "rebin.pyx"))
               ),
               
-    Extension(name="pyat.ccf_fast", 
-              sources=[os.path.join(ext_dir, "ccf_fast.pyx")]
+    Extension(name="pyat.ccf", 
+              sources=[os.path.join(ext_dir, "ccf.pyx")]
                     + [os.path.join(ext_dir, "libccf.c")]
                     + glob(os.path.join(ext_dir, "gsl*.c")),
-              depends=[os.path.join(ext_dir, "ccf_fast.pxd")]
+              depends=[os.path.join(ext_dir, "ccf.pxd")]
                     + [os.path.join(ext_dir, "libccf.h")]
                     + glob(os.path.join(ext_dir, "gsl*.h")),
               libraries=["c", "m"],
