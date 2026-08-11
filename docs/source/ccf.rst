@@ -116,4 +116,71 @@ PyAT provides the following functions to calculate ICCF:
     :rtype: numpy.ndarray, numpy.ndarray, float, float
 
 Examples
------------
+--------
+First import PyAT in a Python script as follows:
+
+.. code-block:: python
+
+    import pyat
+
+Then load the light curve data, e.g., take two light curves with a file name of "lc1.txt" and "lc2.txt":
+
+.. code-block:: python
+
+    import numpy as np
+
+    lc1 = np.loadtxt("lc1.txt")
+    lc2 = np.loadtxt("lc2.txt")
+
+Here, the file contains three columns, namely time, flux, and error. 
+Now calculate the ICCF between the two light curves:
+
+.. code-block:: python
+    
+    ntau = 1001
+    tau_beg = -50.0
+    tau_end = 100.0
+    threshold = 0.8
+    mode = "multiple"
+    ignore_warnings = False
+
+    # calculate iccf
+    tau, ccf, rmax, tau_peak, tau_cent = pyat.iccf(lc1[:, 0], lc1[:, 1], lc2[:, 0], lc2[:, 1], 
+     ntau, tau_beg, tau_end, threshold=threshold, mode=mode, ignore_warnings=ignore_warnings)
+    
+    # peroform Monte Carlo simulation to determine the time lag uncertainties
+    nsim = 1000
+    ccf_peak_mc, tau_peak_mc, tau_cent_mc = pyat.iccf_mc(lc1[:, 0], lc1[:, 1], lc1[:, 2], 
+    lc2[:, 0], lc2[:, 1], lc2[:, 2], ntau, tau_beg, tau_end, nsim=nsim, threshold=threshold, 
+    mode=mode, ignore_warnings=ignore_warnings)
+
+Now plot the results and generate figures.
+
+.. code-block:: python
+
+    import matplotlib.pyplot as plt
+
+    # plot the ICCF
+    plt.figure(figsize=(12, 4))
+    ax = fig.add_subplot(311)
+    plt.plot(tau, ccf, label="ICCF")
+    ax.axvline(x=tau_peak, color="red", label="Peak", ls='--')
+    ax.axvline(x=tau_cent, color="blue", label="Centroid", ls='--')
+    ax.set_xlabel("Time Lag (days)")
+    ax.set_ylabel("ICCF")
+    ax.legend()
+    
+    # plot histogram of ICCF peaks from Monte Carlo simulations
+    ax = fig.add_subplot(312)
+    ax.hist(ccf_peak_mc)
+    ax.set_ylabel("Count")
+    ax.set_xlabel("ICCF Peak")
+    
+    # plot histogram of time lags from Monte Carlo simulations
+    ax = fig.add_subplot(313)
+    ax.hist(tau_peak_mc, label="Peak")
+    ax.hist(tau_cent_mc, label="Centroid", alpha=0.5)
+    ax.legend()
+    ax.set_ylabel("Count")
+    ax.set_xlabel("Time Lag (days)")
+    plt.show()   
