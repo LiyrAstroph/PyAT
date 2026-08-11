@@ -3,6 +3,9 @@
 Interpolated Cross Correlation Function
 =======================================
 
+Mathematical Definition
+-----------------------
+
 The cross-correlation function between two light curves, say, :math:`x(t)` and :math:`y(t)`, is defined as
 
 .. math::
@@ -34,7 +37,7 @@ is then calculated as
 
 .. math::
 
-   r = \frac{\sum_{i=1}^{n} (x'_i-\bar x')(y'_i-\bar y')}{\sqrt{\sum_{i=1}^n(x'_i-\bar x')^2\sum_{i=1}^{n}(y'_i-\bar y')^2}},
+   r(\tau) = \frac{\sum_{i=1}^{n} (x'_i-\bar x')(y'_i-\bar y')}{\sqrt{\sum_{i=1}^n(x'_i-\bar x')^2\sum_{i=1}^{n}(y'_i-\bar y')^2}},
 
 where $n$ is the number of points in the light curves,
 
@@ -49,3 +52,68 @@ and
    \bar y' = \frac{1}{n}\sum_{i=1}^{n}y'_i.
 
 The linear interpolation is used in calculating ICCF.
+
+
+PyAT Implementation
+---------------------
+
+PyAT provides the following functions to calculate ICCF:
+
+.. function:: iccf(t1, f1, t2, f2, ntau, tau_beg, tau_end, threshold=0.8, mode="multiple", ignore_warnings=False, ways=0)
+
+    :synopsis: Calculate interpolated cross-correlation function (ICCF) between two light curves and determine the peak coefficient and time lag and centroid time lag.
+
+    :param t1: Time array of the first light curve.
+    :param f1: Flux array of the first light curve.
+    :param t2: Time array of the second light curve.
+    :param f2: Flux array of the second light curve.
+    :param ntau: Number of time-lag bins to calculate the CCF.
+    :param tau_beg: Beginning time lag to calculate the CCF.
+    :param tau_end: End time lag to calculate the CCF.
+    :param threshold: Threshold to filter out the CCF.
+    :param mode: Mode to calculate the CCF, "multiple" or "single".
+    :param ignore_warnings: Whether to ignore warnings.
+    :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
+
+    :return: tau, ccf, rmax, tau_peak, tau_cent
+    :rtype: numpy.ndarray, numpy.ndarray, float, float, float
+
+
+.. function:: iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, nsim=1000, threshold=0.8, mode="multiple", ignore_warnings=False, ways=0)
+
+    :synopsis: Monte Carlo simulation of interpolated cross-correlation function (ICCF) between two light curves.
+
+    :param t1: Time array of the first light curve.
+    :param f1: Flux array of the first light curve.
+    :param e1: Error array of the first light curve.
+    :param t2: Time array of the second light curve.
+    :param f2: Flux array of the second light curve.
+    :param e2: Error array of the second light curve.
+    :param ntau: Number of time-lag bins to calculate the CCF.
+    :param tau_beg: Beginning time lag to calculate the CCF.
+    :param tau_end: End time lag to calculate the CCF.
+    :param nsim: Number of Monte Carlo simulations to calculate the CCF, default is 1000.
+    :param threshold: Threshold to filter out the CCF, default is 0.8.
+    :param mode: Mode to calculate the CCF, "multiple" or "single".
+    :param ignore_warnings: Whether to ignore warnings.
+    :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
+
+    :return: ccf_peak_mc, tau_peak_mc, tau_cent_mc
+    :rtype: numpy.ndarray, numpy.ndarray, numpy.ndarray
+
+.. function:: iccf_peak(t1, f1, t2, f2, ntau, tau_beg, tau_end)
+    
+    :synopsis: Calculate interpolated cross-correlation function (ICCF) between two light curves and determine the peak coefficient and time lag.
+
+    :param t1: Time array of the first light curve.
+    :param f1: Flux array of the first light curve.
+    :param t2: Time array of the second light curve.
+    :param f2: Flux array of the second light curve.
+    :param ntau: Number of time-lag bins to calculate the CCF.
+    :param tau_beg: Beginning time lag to calculate the CCF.
+    :param tau_end: End time lag to calculate the CCF.
+    :return: tau, ccf, rmax, tau_peak
+    :rtype: numpy.ndarray, numpy.ndarray, float, float
+
+Examples
+-----------
