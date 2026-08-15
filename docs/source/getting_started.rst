@@ -7,22 +7,22 @@ Getting Started
 Requirements
 ============
 
-PyCALI depends on the following third-party packages:
+PyAT depends on the following third-party packages:
 
-- numpy
-- matplotlib
-- astropy
-- scipy
-- emcee
-- celeriate
-- corner
+- `Numpy <https://numpy.org/>`_
+- `Matplotlib <https://matplotlib.org/>`_
+- `Astropy <https://www.astropy.org/>`_
+- `Scipy <https://scipy.org/>`_
+- `Emcee <https://emcee.readthedocs.io/en/stable/>`_
+- `Celerite <https://celerite.readthedocs.io/en/stable/>`_
+- `Corner <https://corner.readthedocs.io/en/latest/>`_
 
 These packages are available from the Python package index (PyPI).
 One can install them using pip:
 
 .. code-block:: bash
 
-    pip install numpy matplotlib astropy scipy emcee celeriate corner
+    pip install numpy matplotlib astropy scipy emcee celerite corner
 
 Installation
 ============

@@ -23,7 +23,7 @@ the following features:
 - Smooth data using Savitzky-Golay filter;
 - Cosmological calculations.
 
-Reference: `Li, Y.-R. & Wang, J.-M., ApJ, submitted <https://ui.adsabs.harvard.edu/abs/2014ApJ...786L...6L/abstract>`_.
+Reference: `Li, Y.-R. & Wang, J.-M., 2026, ApJ, submitted <https://ui.adsabs.harvard.edu/abs/2014ApJ...786L...6L/abstract>`_.
 
 .. toctree::
    :maxdepth: 2
