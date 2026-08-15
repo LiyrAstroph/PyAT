@@ -21,7 +21,9 @@ the following procedures
 - Smooth data using Savitzky-Golay filter;
 - Cosmological calculations.
 
-## Read [the documentation](https://pyat.readthedocs.io)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Read `the documentation <https://pyat.readthedocs.io>`_
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 To install PyAT, use the terminal command 
 
