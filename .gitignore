@@ -16,6 +16,7 @@ docs
 !test/
 !test/test.py
 !test/lightcurve*.txt
+!test/test_rebin_spectrum.py
 !text/spectrum_example.txt
 !template
 template/*
