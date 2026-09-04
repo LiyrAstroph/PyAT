@@ -75,7 +75,11 @@ PyAT provides the following functions to calculate ICCF:
     :param ignore_warnings: Whether to ignore warnings.
     :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
 
-    :return: tau, ccf, rmax, tau_peak, tau_cent
+    :return: ``tau`` is the array of time-lag values, and ``ccf`` is the
+              corresponding ICCF coefficient at each lag. ``rmax`` is the
+              maximum ICCF coefficient. ``tau_peak`` is the lag at which the
+              maximum occurs, and ``tau_cent`` is the centroid lag of the
+              ICCF values above ``threshold``.
     :rtype: numpy.ndarray, numpy.ndarray, float, float, float
 
 
@@ -98,12 +102,16 @@ PyAT provides the following functions to calculate ICCF:
     :param ignore_warnings: Whether to ignore warnings.
     :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
 
-    :return: ccf_peak_mc, tau_peak_mc, tau_cent_mc
+    :return: ``ccf_peak_mc`` contains the maximum ICCF coefficient from each
+              simulation. ``tau_peak_mc`` contains the corresponding peak lag
+              from each simulation, and ``tau_cent_mc`` contains the
+              corresponding centroid lag from each simulation.
     :rtype: numpy.ndarray, numpy.ndarray, numpy.ndarray
 
 .. function:: iccf_peak(t1, f1, t2, f2, ntau, tau_beg, tau_end)
     
-    :synopsis: Calculate interpolated cross-correlation function (ICCF) between two light curves and determine the peak coefficient and time lag.
+    :synopsis: Calculate interpolated cross-correlation function (ICCF) between two light curves 
+               and only determine the peak coefficient and time lag.
 
     :param t1: Time array of the first light curve.
     :param f1: Flux array of the first light curve.
@@ -112,8 +120,38 @@ PyAT provides the following functions to calculate ICCF:
     :param ntau: Number of time-lag bins to calculate the CCF.
     :param tau_beg: Beginning time lag to calculate the CCF.
     :param tau_end: End time lag to calculate the CCF.
-    :return: tau, ccf, rmax, tau_peak
+    :return: ``tau`` is the array of time-lag values, and ``ccf`` is the
+              corresponding ICCF coefficient at each lag. ``rmax`` is the
+              maximum ICCF coefficient, and ``tau_peak`` is the lag at which
+              that maximum occurs.
     :rtype: numpy.ndarray, numpy.ndarray, float, float
+
+.. function:: iccf_peak_significance(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, nsim=1000, ways=0, doshow=False)
+
+    :synopsis: Significance testing of the iccf peak, that is, computing the probability
+               for iccf peaks of mock light-curve pairs exceeding the iccf peak of input 
+               light curves. The input light curve pairs are delineated by separated random walk models,
+               from which the mock light curves are generated. 
+               The mock light curves are assumed to be fully random and uncorrelated. 
+
+    :param t1: Time array of the first light curve.
+    :param f1: Flux array of the first light curve.
+    :param e1: Error array of the first light curve.
+    :param t2: Time array of the second light curve.
+    :param f2: Flux array of the second light curve.
+    :param e2: Error array of the second light curve.
+    :param ntau: Number of time-lag bins to calculate the CCF.
+    :param tau_beg: Beginning time lag to calculate the CCF.
+    :param tau_end: End time lag to calculate the CCF.
+    :param nsim: Number of Monte Carlo simulations to calculate the CCF, default is 1000.
+    :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
+    :param doshow: Whether to show the histogram of iccf peaks of mock light-curve pairs, default is False.
+
+    :return: ``prob`` is the fraction of simulated ICCF peaks that exceed the
+              peak measured from the input light curves. ``rmax_sim`` contains
+              the maximum ICCF coefficient from each simulated light-curve
+              pair.
+    :rtype: float, numpy.ndarray
 
 Examples
 --------
@@ -154,6 +192,21 @@ Now calculate the ICCF between the two light curves:
     lc2[:, 0], lc2[:, 1], lc2[:, 2], ntau, tau_beg, tau_end, nsim=nsim, threshold=threshold, 
     mode=mode, ignore_warnings=ignore_warnings)
 
+    # perform significance testing of the iccf peak
+    prob, rmax_sim = pyat.iccf_peak_significance(lc1[:, 0], lc1[:, 1], lc1[:, 2], 
+    lc2[:, 0], lc2[:, 1], lc2[:, 2], ntau, tau_beg, tau_end, nsim=nsim, ways=0, doshow=True)
+
+The uncertainties of the time lags can be estimated from the Monte Carlo simulations. 
+For example, the 68% confidence intervals of the peak and centroid time lags can 
+be calculated as follows:
+
+.. code-block:: python
+
+    tau_peak_err = np.percentile(tau_peak_mc, [16, 84])
+    tau_cent_err = np.percentile(tau_cent_mc, [16, 84])
+    print("Peak time lag: {:.2f} +{:.2f} -{:.2f}".format(tau_peak, tau_peak_err[1]-tau_peak, tau_peak-tau_peak_err[0]))
+    print("Centroid time lag: {:.2f} +{:.2f} -{:.2f}".format(tau_cent, tau_cent_err[1]-tau_cent, tau_cent-tau_cent_err[0]))
+
 Now plot the results and generate figures.
 
 .. code-block:: python
@@ -161,7 +214,7 @@ Now plot the results and generate figures.
     import matplotlib.pyplot as plt
 
     # plot the ICCF
-    plt.figure(figsize=(12, 4))
+    fig = plt.figure(figsize=(12, 4))
     ax = fig.add_subplot(311)
     plt.plot(tau, ccf, label="ICCF")
     ax.axvline(x=tau_peak, color="red", label="Peak", ls='--')
@@ -183,4 +236,13 @@ Now plot the results and generate figures.
     ax.legend()
     ax.set_ylabel("Count")
     ax.set_xlabel("Time Lag (days)")
-    plt.show()   
+    plt.show()  
+
+    # plot histogram of ICCF peaks from Monte Carlo simulations of mock light-curve pairs
+    fig = plt.figure(figsize=(6, 4))
+    ax = fig.add_subplot(111)
+    ax.hist(rmax_sim)
+    ax.axvline(x=rmax, color="red", label="ICCF Peak of Input Light Curves", ls='--')
+    ax.set_ylabel("Count")
+    ax.set_xlabel("ICCF Peak") 
+    plt.show()
