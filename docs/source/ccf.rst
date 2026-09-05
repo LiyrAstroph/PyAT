@@ -7,6 +7,7 @@ Mathematical Definition
 -----------------------
 
 The cross-correlation function between two light curves, say, :math:`x(t)` and :math:`y(t)`, is defined as
+(e.g., Li & Wang 2026)
 
 .. math::
 
@@ -51,8 +52,19 @@ and
 
    \bar y' = \frac{1}{n}\sum_{i=1}^{n}y'_i.
 
-The linear interpolation is used in calculating ICCF.
+The linear interpolation is used in calculating ICCF. This implementation follows the interpolated cross-correlation method introduced for AGN light curves by Gaskell & Sparke (1986) and further discussed by Peterson et al. (1998).
 
+Null-Hypothesis Testing of ICCF
+-------------------------------
+
+There are two ways to test the significance of the ICCF peak. The first is 
+to generate mock light curves  and then compute the significance level 
+of the ICCF peak from the observed data, which is implemented in the 
+function ``iccf_peak_significance``. 
+
+The second way is to estimate the standard deviations of the ICCF following 
+the procedure developed by Li & Wang (2026). This is implemented in the function 
+``iccf_sigma_null``.
 
 PyAT Implementation
 ---------------------
@@ -152,6 +164,29 @@ PyAT provides the following functions to calculate ICCF:
               the maximum ICCF coefficient from each simulated light-curve
               pair.
     :rtype: float, numpy.ndarray
+    
+
+.. function:: iccf_sigma_null(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, gapx=None, gapy=None, doplot=False)
+
+    :synopsis: Estimate the standard deviations of the ICCF following the procedure developed by Li & Wang (2026).
+
+    :param t1: Time array of the first light curve.
+    :param f1: Flux array of the first light curve.
+    :param e1: Error array of the first light curve.
+    :param t2: Time array of the second light curve.
+    :param f2: Flux array of the second light curve.
+    :param e2: Error array of the second light curve.
+    :param ntau: Number of time-lag bins to calculate the CCF.
+    :param tau_beg: Beginning time lag to calculate the CCF.
+    :param tau_end: End time lag to calculate the CCF.
+    :param gapx: Gaps in the first light curve.
+    :param gapy: Gap in the second light curve.
+    :param doplot: Whether to plot the results, default is False.
+
+    :return: ``tau`` is an array containing the time lags, and ``sigma_null`` 
+             is an array containing the standard deviations of
+             the ICCF at each time lag.
+    :rtype: numpy.ndarrays, numpy.ndarrays
 
 Examples
 --------
@@ -246,3 +281,7 @@ Now plot the results and generate figures.
     ax.set_ylabel("Count")
     ax.set_xlabel("ICCF Peak") 
     plt.show()
+
+References
+----------
+Li, Y.-R. & Wang, J.-M. 2026, ApJ, in press
