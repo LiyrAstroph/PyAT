@@ -6,8 +6,8 @@
 Welcome to PyAT's documentation
 =================================
 
-PyAT is a Python package for advanced analysis of astronomical data. It provide 
-the following features:
+PyAT is a Python package for advanced analysis of astronomical data. It provides 
+the following features (still under development):
 
 - Estimate the systematic error of a light curve;
 - Generate formatted input files for MICA package;

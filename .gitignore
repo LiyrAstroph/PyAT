@@ -17,7 +17,10 @@ docs
 !test/test.py
 !test/lightcurve*.txt
 !test/test_rebin_spectrum.py
-!text/spectrum_example.txt
+!test/spectrum_example.txt
+!test/lc1.txt
+!test/lc2.txt
+!test/text_iccf.py
 !template
 template/*
 !template/*.txt
@@ -29,6 +32,8 @@ docs/source/*
 !docs/source/*.rst
 !docs/source/conf.py
 !docs/source/index.rst
+!docs/source/_static
+!docs/source/_static/*.jpg
 !docs/Makefile
 !docs/requirements.txt
 

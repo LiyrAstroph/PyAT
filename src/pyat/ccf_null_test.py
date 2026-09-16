@@ -159,7 +159,7 @@ def iccf_ndeff(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     return tau, nd1, ndeff1, nd2, ndeff2
 
 def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
-                    gapx=None, gapy=None, doplot=False):
+                    gapx=None, gapy=None, doshow=False):
     """
     Estimate the null hypothesis standard deviation of the ICCF.
 
@@ -177,7 +177,7 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
         Gaps in the time sampling for the two light curves, given as ``(start,
         end)`` pairs. They are used to correct the effective temporal spacing when
         estimating the number of independent points.
-    doplot : bool, optional
+    doshow : bool, optional
         If True, plot the results.
 
     Returns
@@ -191,7 +191,8 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
 
     # calculate iccf
     tau, ccf, rmax, tau_peak, tau_cent = iccf(t1, y1, t2, y2, ntau, tau_beg, tau_end)
-    print("rmax: %.2f, zmax: %.2f at tau=%.2f"%(rmax, zmax,tau_peak))
+    zmax = np.arctanh(np.clip(rmax, -0.999, 0.999))
+    print("rmax: %.2f, zmax: %.2f at tau=%.2f"%(rmax, zmax, tau_peak))
 
     # DRW fits 
     sample1 = drw_modeling(t1, y1, ye1, doshow=True)
@@ -220,7 +221,7 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     idx = (m >= np.arctanh(rmax)) 
     print("probability of rmax in null hypothesis:", np.sum(fm[idx])/np.sum(fm))
 
-    if doplot:
+    if doshow:
         fig = plt.figure(figsize=(10, 4))
         ax = fig.add_axes((0.1, 0.1, 0.4, 0.8))
         y1_mean = np.mean(y1)
@@ -268,7 +269,7 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     return tau, sigma_null
 
 def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
-                   gapx=None, gapy=None, doplot=False):
+                   gapx=None, gapy=None, doshow=False):
     """
     Estimate the null hypothesis probability of the ICCF rmax.
     
@@ -286,7 +287,7 @@ def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
         Gaps in the time sampling for the two light curves, given as ``(start,
         end)`` pairs. They are used to correct the effective temporal spacing when
         estimating the number of independent points.
-    doplot : bool, optional
+    doshow : bool, optional
         If True, plot the results.
 
     Returns
@@ -329,7 +330,7 @@ def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     prob_rmax = np.sum(fm[idx])/np.sum(fm)
     print("probability of rmax in null hypothesis:", prob_rmax)
 
-    if doplot:
+    if doshow:
         fig = plt.figure(figsize=(10, 4))
         ax = fig.add_axes((0.1, 0.1, 0.4, 0.8))        
         plt.plot(tau, ccf)

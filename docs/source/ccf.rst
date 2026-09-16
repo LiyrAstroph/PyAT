@@ -59,7 +59,7 @@ Null-Hypothesis Testing of ICCF
 
 There are two ways to test the significance of the ICCF peak. The first is 
 to generate mock light curves  and then compute the significance level 
-of the ICCF peak from the observed data, which is implemented in the 
+of the ICCF peak from the observed data. This is implemented in the 
 function ``iccf_peak_significance``. 
 
 The second way is to estimate the standard deviations of the ICCF following 
@@ -87,7 +87,9 @@ PyAT provides the following functions to calculate ICCF:
     :param ignore_warnings: Whether to ignore warnings.
     :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
 
-    :return: ``tau`` is the array of time-lag values, and ``ccf`` is the
+    :return: ``tau``, ``ccf``, ``rmax``, ``tau_peak``, ``tau_cent``
+     
+              ``tau`` is the array of time-lag values, and ``ccf`` is the
               corresponding ICCF coefficient at each lag. ``rmax`` is the
               maximum ICCF coefficient. ``tau_peak`` is the lag at which the
               maximum occurs, and ``tau_cent`` is the centroid lag of the
@@ -114,7 +116,9 @@ PyAT provides the following functions to calculate ICCF:
     :param ignore_warnings: Whether to ignore warnings.
     :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
 
-    :return: ``ccf_peak_mc`` contains the maximum ICCF coefficient from each
+    :return: ``ccf_peak_mc``, ``tau_peak_mc``, ``tau_cent_mc``
+              
+              ``ccf_peak_mc`` contains the maximum ICCF coefficient from each
               simulation. ``tau_peak_mc`` contains the corresponding peak lag
               from each simulation, and ``tau_cent_mc`` contains the
               corresponding centroid lag from each simulation.
@@ -159,14 +163,16 @@ PyAT provides the following functions to calculate ICCF:
     :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
     :param doshow: Whether to show the histogram of iccf peaks of mock light-curve pairs, default is False.
 
-    :return: ``prob`` is the fraction of simulated ICCF peaks that exceed the
+    :return: ``prob``, ``rmax_sim``
+            
+              ``prob`` is the fraction of simulated ICCF peaks that exceed the
               peak measured from the input light curves. ``rmax_sim`` contains
               the maximum ICCF coefficient from each simulated light-curve
               pair.
     :rtype: float, numpy.ndarray
     
 
-.. function:: iccf_sigma_null(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, gapx=None, gapy=None, doplot=False)
+.. function:: iccf_sigma_null(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, gapx=None, gapy=None, doshow=False)
 
     :synopsis: Estimate the standard deviations of the ICCF following the procedure developed by Li & Wang (2026).
 
@@ -181,9 +187,11 @@ PyAT provides the following functions to calculate ICCF:
     :param tau_end: End time lag to calculate the CCF.
     :param gapx: Gaps in the first light curve.
     :param gapy: Gap in the second light curve.
-    :param doplot: Whether to plot the results, default is False.
+    :param doshow: Whether to plot the results, default is False.
 
-    :return: ``tau`` is an array containing the time lags, and ``sigma_null`` 
+    :return: ``tau``, ``sigma_null``
+
+             ``tau`` is an array containing the time lags, and ``sigma_null`` 
              is an array containing the standard deviations of
              the ICCF at each time lag.
     :rtype: numpy.ndarrays, numpy.ndarrays
@@ -196,7 +204,8 @@ First import PyAT in a Python script as follows:
 
     import pyat
 
-Then load the light curve data, e.g., take two light curves with a file name of "lc1.txt" and "lc2.txt":
+Then load the light curve data, e.g., take two light curves with file names of "lc1.txt" and "lc2.txt"
+respectively:
 
 .. code-block:: python
 
@@ -205,31 +214,38 @@ Then load the light curve data, e.g., take two light curves with a file name of 
     lc1 = np.loadtxt("lc1.txt")
     lc2 = np.loadtxt("lc2.txt")
 
-Here, the file contains three columns, namely time, flux, and error. 
+Here, the file contains three columns, namely time, flux, and error. Two examplary light curves 
+extracted from Li et al. (2024) are provided in the subfolder `test` in the package.
+
 Now calculate the ICCF between the two light curves:
 
 .. code-block:: python
     
+    import pyat 
+
     ntau = 1001
     tau_beg = -50.0
     tau_end = 100.0
     threshold = 0.8
     mode = "multiple"
-    ignore_warnings = False
+    ignore_warning = False
 
     # calculate iccf
-    tau, ccf, rmax, tau_peak, tau_cent = pyat.iccf(lc1[:, 0], lc1[:, 1], lc2[:, 0], lc2[:, 1], 
-     ntau, tau_beg, tau_end, threshold=threshold, mode=mode, ignore_warnings=ignore_warnings)
+    t, r, rmax, tau_peak, tau_cent = pyat.iccf(lc1[:, 0], lc1[:, 1], lc2[:, 0], lc2[:, 1], 
+                                           ntau, tau_beg, tau_end)
+    print("rmax, tau_peak, tau_cent: %.2f, %.2f, %.2f" % (rmax, tau_peak, tau_cent))
     
     # peroform Monte Carlo simulation to determine the time lag uncertainties
-    nsim = 1000
+    nsim = 10000
     ccf_peak_mc, tau_peak_mc, tau_cent_mc = pyat.iccf_mc(lc1[:, 0], lc1[:, 1], lc1[:, 2], 
-    lc2[:, 0], lc2[:, 1], lc2[:, 2], ntau, tau_beg, tau_end, nsim=nsim, threshold=threshold, 
-    mode=mode, ignore_warnings=ignore_warnings)
+                                                        lc2[:, 0], lc2[:, 1], lc2[:, 2], ntau, tau_beg, tau_end, nsim=nsim, threshold=threshold, 
+                                                        mode=mode, ignore_warning=ignore_warning)
 
     # perform significance testing of the iccf peak
     prob, rmax_sim = pyat.iccf_peak_significance(lc1[:, 0], lc1[:, 1], lc1[:, 2], 
-    lc2[:, 0], lc2[:, 1], lc2[:, 2], ntau, tau_beg, tau_end, nsim=nsim, ways=0, doshow=True)
+                                                lc2[:, 0], lc2[:, 1], lc2[:, 2], 
+                                                ntau, tau_beg, tau_end, nsim=10000, 
+                                                doshow=True)
 
 The uncertainties of the time lags can be estimated from the Monte Carlo simulations. 
 For example, the 68% confidence intervals of the peak and centroid time lags can 
@@ -237,8 +253,9 @@ be calculated as follows:
 
 .. code-block:: python
 
-    tau_peak_err = np.percentile(tau_peak_mc, [16, 84])
-    tau_cent_err = np.percentile(tau_cent_mc, [16, 84])
+    tau_peak_err = np.percentile(tau_peak_mc, [15.85, 84.15])
+    tau_cent_err = np.percentile(tau_cent_mc, [15.85, 84.15])
+    print("Peak ICCF:", rmax)
     print("Peak time lag: {:.2f} +{:.2f} -{:.2f}".format(tau_peak, tau_peak_err[1]-tau_peak, tau_peak-tau_peak_err[0]))
     print("Centroid time lag: {:.2f} +{:.2f} -{:.2f}".format(tau_cent, tau_cent_err[1]-tau_cent, tau_cent-tau_cent_err[0]))
 
@@ -249,39 +266,53 @@ Now plot the results and generate figures.
     import matplotlib.pyplot as plt
 
     # plot the ICCF
-    fig = plt.figure(figsize=(12, 4))
-    ax = fig.add_subplot(311)
+    plt.rcParams["xtick.direction"] = "in"
+    plt.rcParams["ytick.direction"] = "in"
+    plt.rcParams["xtick.top"] = True
+    plt.rcParams["ytick.right"] = True
+
+    fig = plt.figure(figsize=(15, 4))
+    ax = fig.add_subplot(131)
     plt.plot(tau, ccf, label="ICCF")
     ax.axvline(x=tau_peak, color="red", label="Peak", ls='--')
     ax.axvline(x=tau_cent, color="blue", label="Centroid", ls='--')
     ax.set_xlabel("Time Lag (days)")
     ax.set_ylabel("ICCF")
     ax.legend()
-    
-    # plot histogram of ICCF peaks from Monte Carlo simulations
-    ax = fig.add_subplot(312)
-    ax.hist(ccf_peak_mc)
-    ax.set_ylabel("Count")
-    ax.set_xlabel("ICCF Peak")
-    
-    # plot histogram of time lags from Monte Carlo simulations
-    ax = fig.add_subplot(313)
-    ax.hist(tau_peak_mc, label="Peak")
-    ax.hist(tau_cent_mc, label="Centroid", alpha=0.5)
+    ax.set_title("ICCF")
+
+    # plot histogram of time lags from FR/RSSMonte Carlo simulations
+    ax = fig.add_subplot(132)
+    ax.hist(tau_peak_mc, label="Peak", bins=30)
+    ax.hist(tau_cent_mc, label="Centroid", alpha=0.5, bins=30)
     ax.legend()
     ax.set_ylabel("Count")
     ax.set_xlabel("Time Lag (days)")
+    ax.set_title("Time Lags from FR/RSS Simulations")
+
+    # plot the significance testing result
+    ax = fig.add_subplot(133)
+    ax.hist(rmax_sim, bins=30)
+    ax.set_xlabel("rmax")
+    ax.set_ylabel("Significance")
+    ax.axvline(x=rmax, color="red", label="rmax", ls='--')
+    ax.legend()
+    ax.set_title("Significance Testing of rmax: p={:.2e}".format(prob))
     plt.show()  
 
-    # plot histogram of ICCF peaks from Monte Carlo simulations of mock light-curve pairs
-    fig = plt.figure(figsize=(6, 4))
-    ax = fig.add_subplot(111)
-    ax.hist(rmax_sim)
-    ax.axvline(x=rmax, color="red", label="ICCF Peak of Input Light Curves", ls='--')
-    ax.set_ylabel("Count")
-    ax.set_xlabel("ICCF Peak") 
-    plt.show()
+The output figure is as follows. 
+
+.. figure:: _static/iccf.jpg
+    :align: center
+    :width: 100%
+
+    The ICCF, the distributions of peak and centroid time lags from FR/RSS Monte Carlo simulations,
+    and the significance testing result of rmax.
 
 References
 ----------
-Li, Y.-R. & Wang, J.-M. 2026, ApJ, in press
+
+- Li, Y.-R. & Wang, J.-M. 2026, ApJ, submitted, *On the Probability Distribution and Null-hypothesis Testing 
+  of Cross-correlation for Light Curves in Active Galactic Nuclei*
+- Li, Y.-R. et al. 2024, ApJ, 974, 85, *Spectroastrometry and Reverberation Mapping of 
+  Active Galactic Nuclei. I. The Hβ  Broad-line Region Structure and Black Hole Masses of Five Quasars*

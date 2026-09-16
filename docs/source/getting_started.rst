@@ -36,7 +36,7 @@ One can install PyAT from the source code as follows:
     python -m pip install --no-build-isolation .
 
 After installation, change the directory to **test/** and execute the Python script 
-to test the installation.
+to test the installation. A quick test is
 
 .. code-block:: python 
 
