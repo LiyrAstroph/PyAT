@@ -298,7 +298,7 @@ def genlc_psd_pow(model, nd, DT, freq_limit):
     freq = 1.0/(nd_sim * DT/W) * np.linspace(0.0, nd_sim//2, nd_sim//2+1)
     fft_work[1:nd_sim//2] = psd_power_law_sqrt(freq[1:nd_sim//2], arg, freq_limit)/np.sqrt(2.0) \
                         * ( np.random.randn(int(nd_sim//2-1)) + 1j*np.random.randn(int(nd_sim//2-1)) )
-    fft_work[nd_sim//2] = psd_power_law_sqrt(freq[nd_sim//2:], arg, freq_limit) * (np.random.randn() + 1j*0.0)
+    fft_work[nd_sim//2:] = psd_power_law_sqrt(freq[nd_sim//2:], arg, freq_limit) * (np.random.randn() + 1j*0.0)
 
     fs = fft.irfft(fft_work) * nd_sim # note the factor 1/n in numpy ifft,
 
@@ -327,7 +327,7 @@ def genlc_psd_drw(model, nd, DT, freq_limit):
     freq = 1.0/(nd_sim * DT/W) * np.linspace(0.0, nd_sim//2, nd_sim//2+1)
     fft_work[1:nd_sim//2] = 2.0**0.5*psd_drw_sqrt(freq[1:nd_sim//2], arg, freq_limit)/np.sqrt(2.0) \
                         * ( np.random.randn(int(nd_sim//2-1)) + 1j*np.random.randn(int(nd_sim//2-1)) )
-    fft_work[nd_sim//2] = 2.0**0.5*psd_drw_sqrt(freq[nd_sim//2:], arg, freq_limit) * (np.random.randn() + 1j*0.0)
+    fft_work[nd_sim//2:] = 2.0**0.5*psd_drw_sqrt(freq[nd_sim//2:], arg, freq_limit) * (np.random.randn() + 1j*0.0)
 
     fs = fft.irfft(fft_work) * nd_sim # note the factor 1/n in numpy ifft,
 
