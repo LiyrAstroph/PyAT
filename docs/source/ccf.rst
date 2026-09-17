@@ -99,7 +99,8 @@ PyAT provides the following functions to calculate ICCF:
 
 .. function:: iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, nsim=1000, threshold=0.8, mode="multiple", ignore_warnings=False, ways=0)
 
-    :synopsis: Monte Carlo simulation of interpolated cross-correlation function (ICCF) between two light curves.
+    :synopsis: Monte Carlo simulation of interpolated cross-correlation function (ICCF) between two light curves
+               using the FR/RSS method (Gaskell & Peterson, 1987).
 
     :param t1: Time array of the first light curve.
     :param f1: Flux array of the first light curve.
@@ -185,16 +186,16 @@ PyAT provides the following functions to calculate ICCF:
     :param ntau: Number of time-lag bins to calculate the CCF.
     :param tau_beg: Beginning time lag to calculate the CCF.
     :param tau_end: End time lag to calculate the CCF.
-    :param gapx: Gaps in the first light curve.
-    :param gapy: Gap in the second light curve.
+    :param gapx: Gaps in the first light curve. A list of time periods like [[t1, t2], [t3, t3]]. Default is None.
+    :param gapy: Gaps in the second light curve. A list of time periods like [[t1, t2], [t3, t3]]. Default is None.
     :param doshow: Whether to plot the results, default is False.
 
-    :return: ``tau``, ``sigma_null``
+    :return: ``tau``, ``sigma_null``, ``fig``(if doshow=True)
 
              ``tau`` is an array containing the time lags, and ``sigma_null`` 
              is an array containing the standard deviations of
-             the ICCF at each time lag.
-    :rtype: numpy.ndarrays, numpy.ndarrays
+             the ICCF at each time lag. ``fig`` is the matplotlib figure object.
+    :rtype: numpy.ndarrays, numpy.ndarrays, matplotlib.figure.Figure (if doshow=True)
 
 Examples
 --------
@@ -309,10 +310,29 @@ The output figure is as follows.
     The ICCF, the distributions of peak and centroid time lags from FR/RSS Monte Carlo simulations,
     and the significance testing result of rmax.
 
+The Null-hypothesis testing using the method in Li & Wang (2026) is implemented as follows.
+
+.. code-block:: python
+
+    # null test using the method in Li & Wang 2026
+    tau, sigma, fig_sigma = pyat.iccf_sigma_null(lc1[:, 0], lc1[:, 1], lc1[:, 2], 
+                        lc2[:, 0], lc2[:, 1], lc2[:, 2], 
+                        ntau, tau_beg, tau_end, gapx=None, gapy=None, 
+                        doshow=True)
+    fig_sigma.savefig("sigma_null.jpg", dpi=300)
+
+The output figure is as follows.
+
+.. figure:: _static/sigma_null.jpg
+    :align: center
+    :width: 100%
+
+    The null-hypothesis testing result of the ICCF using the method in Li & Wang (2026).
+
 References
 ----------
-
-- Li, Y.-R. & Wang, J.-M. 2026, ApJ, submitted, *On the Probability Distribution and Null-hypothesis Testing 
+- Gaskell, C. M., & Peterson, B. M. 1987, ApJS, 65, 1, *The Accuracy of Cross-Correlation Estimates of Quasar Emission-Line Region Sizes*
+- Li, Y.-R. & Wang, J.-M. 2026, ApJ, in press, *On the Probability Distribution and Null-hypothesis Testing 
   of Cross-correlation for Light Curves in Active Galactic Nuclei*
 - Li, Y.-R. et al. 2024, ApJ, 974, 85, *Spectroastrometry and Reverberation Mapping of 
   Active Galactic Nuclei. I. The Hβ  Broad-line Region Structure and Black Hole Masses of Five Quasars*

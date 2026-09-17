@@ -222,6 +222,10 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     print("probability of rmax in null hypothesis:", np.sum(fm[idx])/np.sum(fm))
 
     if doshow:
+        plt.rcParams["xtick.direction"] = "in"
+        plt.rcParams["ytick.direction"] = "in"
+        plt.rcParams["xtick.top"] = True
+        plt.rcParams["ytick.right"] = True
         fig = plt.figure(figsize=(10, 4))
         ax = fig.add_axes((0.1, 0.1, 0.4, 0.8))
         y1_mean = np.mean(y1)
@@ -265,8 +269,11 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
         ax2.set_yscale("function", functions=(_ax_forward, _ax_inverse))
 
         plt.show()
-
-    return tau, sigma_null
+    
+    if doshow:
+        return tau, sigma_null, fig 
+    else:
+        return tau, sigma_null
 
 def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
                    gapx=None, gapy=None, doshow=False):
@@ -331,6 +338,10 @@ def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     print("probability of rmax in null hypothesis:", prob_rmax)
 
     if doshow:
+        plt.rcParams["xtick.direction"] = "in"
+        plt.rcParams["ytick.direction"] = "in"
+        plt.rcParams["xtick.top"] = True
+        plt.rcParams["ytick.right"] = True
         fig = plt.figure(figsize=(10, 4))
         ax = fig.add_axes((0.1, 0.1, 0.4, 0.8))        
         plt.plot(tau, ccf)
@@ -370,5 +381,8 @@ def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
         ax.set_xlabel(r"$z_{\rm max}$")
         ax.set_ylabel(r"$p(z_{\rm max})$")
         plt.show()
-
-    return rmax, zmax, prob_rmax
+    
+    if doshow:
+        return rmax, zmax, prob_rmax, fig 
+    else:
+        return rmax, zmax, prob_rmax
