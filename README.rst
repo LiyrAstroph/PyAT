@@ -11,6 +11,7 @@ the following procedures
 - Generate formatted input files for MICA package;
 - Calculate mean and rms spectra and their line widths;
 - Remove outliers from a light curve using the median filter;
+- Rebin light curves using the inverse variance weighting;
 - Rebin spectra by keeping the total flux unchanged;
 - Calculate interpolated cross-correlation function (ICCF);
 - Reconstruct light curves using damped random walk model;

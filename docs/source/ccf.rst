@@ -190,7 +190,7 @@ PyAT provides the following functions to calculate ICCF:
     :param gapy: Gaps in the second light curve. A list of time periods like [[t1, t2], [t3, t3]]. Default is None.
     :param doshow: Whether to plot the results, default is False.
 
-    :return: ``tau``, ``sigma_null``, ``fig``(if doshow=True)
+    :return: ``tau``, ``sigma_null``, ``fig`` (if doshow=True)
 
              ``tau`` is an array containing the time lags, and ``sigma_null`` 
              is an array containing the standard deviations of

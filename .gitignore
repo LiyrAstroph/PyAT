@@ -20,7 +20,8 @@ docs
 !test/spectrum_example.txt
 !test/lc1.txt
 !test/lc2.txt
-!test/text_iccf.py
+!test/test_iccf.py
+!test/test_lc_rebin.py
 !template
 template/*
 !template/*.txt
