@@ -100,7 +100,7 @@ PyAT provides the following functions to calculate ICCF:
 .. function:: iccf_mc(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, nsim=1000, threshold=0.8, mode="multiple", ignore_warnings=False, ways=0)
 
     :synopsis: Monte Carlo simulation of interpolated cross-correlation function (ICCF) between two light curves
-               using the FR/RSS method (Gaskell & Peterson, 1987).
+               using the FR/RSS method (Peterson et al. 1998).
 
     :param t1: Time array of the first light curve.
     :param f1: Flux array of the first light curve.
@@ -331,8 +331,12 @@ The output figure is as follows.
 
 References
 ----------
-- Gaskell, C. M., & Peterson, B. M. 1987, ApJS, 65, 1, *The Accuracy of Cross-Correlation Estimates of Quasar Emission-Line Region Sizes*
-- Li, Y.-R. & Wang, J.-M. 2026, ApJ, in press, *On the Probability Distribution and Null-hypothesis Testing 
-  of Cross-correlation for Light Curves in Active Galactic Nuclei*
-- Li, Y.-R. et al. 2024, ApJ, 974, 85, *Spectroastrometry and Reverberation Mapping of 
+- `Gaskell, C. M., & Peterson, B. M. 1987, ApJS, 65, 1 <https://ui.adsabs.harvard.edu/abs/1987ApJS...65....1G/abstract>`_, 
+  *The Accuracy of Cross-Correlation Estimates of Quasar Emission-Line Region Sizes*
+- `Peterson, B. M., Wanders, I., Horne, K., et al. 1998, PASP, 110, 660 <https://ui.adsabs.harvard.edu/abs/1998PASP..110..660P/abstract>`_, 
+  *On Uncertainties in Cross‐Correlation Lags and the Reality of Wavelength‐dependent Continuum Lags in Active Galactic Nuclei*
+- `Li, Y.-R. & Wang, J.-M., 2026, ApJ, in press <http://arxiv.org/abs/2609.19672>`_, 
+  *On the Probability Distribution and Null-hypothesis Testing of Cross-correlation for Light Curves in Active Galactic Nuclei*
+- `Li, Y.-R. et al. 2024, ApJ, 974, 85 <https://ui.adsabs.harvard.edu/abs/2024ApJ...974...86L/abstract>`_, 
+  *Spectroastrometry and Reverberation Mapping of 
   Active Galactic Nuclei. I. The Hβ  Broad-line Region Structure and Black Hole Masses of Five Quasars*

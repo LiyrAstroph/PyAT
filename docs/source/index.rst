@@ -24,7 +24,9 @@ the following features (still under development):
 - Smooth data using Savitzky-Golay filter;
 - Cosmological calculations.
 
-Reference: Li, Y.-R. & Wang, J.-M., 2026, ApJ, in press.
+Reference: `Li, Y.-R. & Wang, J.-M., 2026, ApJ, in press <http://arxiv.org/abs/2609.19672>`_
+
+.. _li_wang_2026_apj_in_press:
 
 .. toctree::
    :maxdepth: 2
