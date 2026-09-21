@@ -3,14 +3,14 @@ requires = [
     "setuptools",
     "numpy",
     "cython",
-    "numba",
-    "scipy",
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyat"
-dynamic = ["version"]
+requires-python = ">=3.8"
+authors = [{name = "Yan‑Rong Li", email = "liyropt@gmail.com"}]
+dynamic = ["version", "dependencies"]
 
 [project.optional-dependencies]
 docs = [
