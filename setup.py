@@ -18,7 +18,9 @@ ext_dir = "src/pyat"
 
 extensions = cythonize([
     Extension(name="pyat.rebin", 
-              sources=glob(os.path.join(ext_dir, "rebin.pyx"))
+              sources=glob(os.path.join(ext_dir, "rebin.pyx")),
+              libraries=["c", "m"],
+              include_dirs=[get_include()]
               ),
               
     Extension(name="pyat.ccf", 
