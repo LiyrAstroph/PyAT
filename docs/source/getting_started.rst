@@ -35,6 +35,13 @@ One can install PyAT from the source code as follows:
     cd PyAT
     python -m pip install --no-build-isolation .
 
+Sometimes, it is necessary to remove the cached building file before installation.
+One can do this by running the following command:
+
+.. code-block:: bash
+
+    rm -rf build dist *.egg-info
+
 After installation, change the directory to **test/** and execute the Python script 
 to test the installation. A quick test is
 
