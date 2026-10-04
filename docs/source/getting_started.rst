@@ -33,7 +33,7 @@ One can install PyAT from the source code as follows:
 
     git clone https://github.com/liyropt/PyAT.git
     cd PyAT
-    python -m pip install --no-build-isolation .
+    python -m pip install .
 
 Sometimes, it is necessary to remove the cached building file before installation.
 One can do this by running the following command:
