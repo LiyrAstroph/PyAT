@@ -20,18 +20,25 @@ def test_rebin():
   
   fs = spectres.spectres(wave_rebin, wave, flux)
 
+  # data
   wave_edge = get_bin_edge(wave)
   x = np.array(list(zip(wave_edge[:-1], wave_edge[1:]))).flatten()
   y = np.array(list(zip(flux, flux))).flatten()
   plt.plot(x, y, color="C1")
+  plt.plot(wave, flux, marker='o', label='Data', ls='none', color="C1", markersize=4)
 
+  # rebin
   wave_rebin_edge = get_bin_edge(wave_rebin)
   x = np.array(list(zip(wave_rebin_edge[:-1], wave_rebin_edge[1:]))).flatten()
   y = np.array(list(zip(flux_rebin, flux_rebin))).flatten()
-  plt.plot(x, y, color='C2')
-  plt.plot(wave, flux, marker='o', label='Data', ls='none', color="C1", markersize=4)
+  plt.plot(x, y, color='C2', lw=2)
   plt.plot(wave_rebin, flux_rebin, marker='o', label='PyAT Rebin', color="C2", markersize=4, lw=3)
-  plt.plot(wave_rebin, fs, label='Spectres', ls=':', lw=3)
+
+  # spectres
+  x = np.array(list(zip(wave_rebin_edge[:-1], wave_rebin_edge[1:]))).flatten()
+  y = np.array(list(zip(fs, fs))).flatten()
+  plt.plot(x, y, color="C3", ls=":", lw=2)
+  plt.plot(wave_rebin, fs, marker='o', ls=':',label='Spectres', color="C3", markersize=4, lw=3)
   plt.legend()
   plt.show()
 
