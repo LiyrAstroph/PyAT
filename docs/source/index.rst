@@ -35,3 +35,4 @@ Reference: `Li, Y.-R. & Wang, J.-M., 2026, ApJ, in press <http://arxiv.org/abs/2
    getting_started.rst
    ccf.rst
    lc_rebin.rst
+   spec_rebin.rst
