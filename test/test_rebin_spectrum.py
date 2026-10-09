@@ -30,8 +30,8 @@ def test_rebin():
   y = np.array(list(zip(flux_rebin, flux_rebin))).flatten()
   plt.plot(x, y, color='C2')
   plt.plot(wave, flux, marker='o', label='Data', ls='none', color="C1", markersize=4)
-  plt.plot(wave_rebin, flux_rebin, marker='o', label='PyAT Rebin', color="C2", markersize=4)
-  plt.plot(wave_rebin, fs, label='Spectres')
+  plt.plot(wave_rebin, flux_rebin, marker='o', label='PyAT Rebin', color="C2", markersize=4, lw=3)
+  plt.plot(wave_rebin, fs, label='Spectres', ls=':', lw=3)
   plt.legend()
   plt.show()
 
