@@ -724,7 +724,9 @@ cdef iccf_peak_significance_proto(
   double tau_end,
   int nsim=1000,
   int ways=0,
-  bint doshow=False):
+  bint doshow=False,
+  var_sample1=None,
+  var_sample2=None):
   """
   Significance testing of the iccf peak, that is, computing the probability
   for iccf peaks of mock light-curve pairs exceeding the iccf peak of input light curves.
@@ -750,6 +752,13 @@ cdef iccf_peak_significance_proto(
     starting time lag
   tau_end : double
     ending time lag 
+  ways : int 
+    specifiy two-way or one-way iccf
+  doshow : bool, optional
+    If True, plot the results.
+  var_sample1, var_sample2 : 2d array or None, optional
+    Precomputed DRW parameter samples for the first and second light curves, respectively.
+    The first column is the DRW sigma and the second column is the DRW tau.
   
   Returns
   -------
@@ -848,9 +857,17 @@ cdef iccf_peak_significance_proto(
   else:
     std2_data_corr = np.sqrt(var2_data - mean_e2_data)
 
-  # get DRW parameter sample 
-  sample1 = drw_modeling(t1, f1, e1, doshow=doshow)
-  sample2 = drw_modeling(t2, f2, e2, doshow=doshow)
+  # get DRW parameter sample for the first light curve
+  if var_sample1 is not None:
+    sample1 = var_sample1
+  else:
+    sample1 = drw_modeling(t1, f1, e1, doshow=doshow)
+  
+  # get DRW parameter sample for the second light curve
+  if var_sample2 is not None:
+    sample2 = var_sample2
+  else:
+    sample2 = drw_modeling(t2, f2, e2, doshow=doshow)
   
   ir1 = np.random.randint(0, sample1.shape[0], size=nsim, dtype=np.int32)
   ir2 = np.random.randint(0, sample2.shape[0], size=nsim, dtype=np.int32)
@@ -984,7 +1001,9 @@ cpdef iccf_peak_significance(
   double tau_beg,
   double tau_end,
   int nsim=1000,
-  bint doshow=False):
+  bint doshow=False,
+  var_sample1=None,
+  var_sample2=None):
   """
   Significance testing of the iccf peak, that is, computing the probability
   for iccf peaks of mock light-curve pairs exceeding the iccf peak of input light curves.
@@ -1010,6 +1029,13 @@ cpdef iccf_peak_significance(
     starting time lag
   tau_end : double
     ending time lag 
+  ways : int 
+    specifiy two-way or one-way iccf
+  doshow : bool, optional
+    If True, plot the results.
+  var_sample1, var_sample2 : 2d array or None, optional
+    Precomputed DRW parameter samples for the first and second light curves, respectively.
+    The first column is the DRW sigma and the second column is the DRW tau.
   
   Returns
   -------
@@ -1019,7 +1045,8 @@ cpdef iccf_peak_significance(
     array of rmax of simulated light curves
   """
   return iccf_peak_significance_proto(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
-                                      nsim=nsim, ways=0, doshow=doshow)
+                                      nsim=nsim, ways=0, doshow=doshow, 
+                                      var_sample1=var_sample1, var_sample2=var_sample2)
 
 #============================================================================
 # significiance estimation of one-way iccf peak
@@ -1036,7 +1063,9 @@ cpdef iccf_oneway_peak_significance(
   double tau_beg,
   double tau_end,
   int nsim=1000,
-  bint doshow=False):
+  bint doshow=False,
+  var_sample1=None,
+  var_sample2=None):
   """
   Significance testing of the iccf peak, that is, computing the probability
   for iccf peaks of mock light-curve pairs exceeding the iccf peak of input light curves.
@@ -1062,6 +1091,13 @@ cpdef iccf_oneway_peak_significance(
     starting time lag
   tau_end : double
     ending time lag 
+  ways : int 
+    specifiy two-way or one-way iccf
+  doshow : bool, optional
+    If True, plot the results.
+  var_sample1, var_sample2 : 2d array or None, optional
+    Precomputed DRW parameter samples for the first and second light curves, respectively.
+    The first column is the DRW sigma and the second column is the DRW tau.
   
   Returns
   -------
@@ -1071,4 +1107,5 @@ cpdef iccf_oneway_peak_significance(
     array of rmax of simulated light curves
   """
   return iccf_peak_significance_proto(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, 
-                                      nsim=nsim, ways=1, doshow=doshow)
+                                      nsim=nsim, ways=1, doshow=doshow,
+                                      var_sample1=var_sample1, var_sample2=var_sample2)

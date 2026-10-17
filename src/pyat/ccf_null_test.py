@@ -159,7 +159,8 @@ def iccf_ndeff(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     return tau, nd1, ndeff1, nd2, ndeff2
 
 def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
-                    gapx=None, gapy=None, doshow=False):
+                    gapx=None, gapy=None, doshow=False, return_fig=False,
+                    var_params1=None, var_params2=None):
     """
     Estimate the null hypothesis standard deviation of the ICCF.
 
@@ -179,6 +180,11 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
         estimating the number of independent points.
     doshow : bool, optional
         If True, plot the results.
+    return_fig : bool, optional
+        If True, return the figure object.
+    var_params1, var_params2 : tuple or None, optional
+        Precomputed DRW parameters for the first and second light curves, respectively.
+        The first element is the DRW sigma and the second element is the DRW tau.
 
     Returns
     -------
@@ -195,13 +201,19 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     print("rmax: %.2f, zmax: %.2f at tau=%.2f"%(rmax, zmax, tau_peak))
 
     # DRW fits 
-    sample1 = drw_modeling(t1, y1, ye1, doshow=True)
-    sigma1, tau1 = np.exp(np.median(sample1, axis=0))
-    print("DRW sigma and tau: %.2f, %.2f"%(sigma1, tau1))
-
-    sample2 = drw_modeling(t2, y2, ye2, doshow=True)
-    sigma2, tau2 = np.exp(np.median(sample2, axis=0))
-    print("DRW sigma and tau: %.2f, %.2f"%(sigma2, tau2))
+    if var_params1 is not None:
+        sigma1, tau1 = var_params1
+    else:
+        sample1 = drw_modeling(t1, y1, ye1, doshow=doshow)
+        sigma1, tau1 = np.exp(np.median(sample1, axis=0))
+        print("DRW sigma and tau: %.2f, %.2f"%(sigma1, tau1))
+    
+    if var_params2 is not None:
+        sigma2, tau2 = var_params2
+    else:
+        sample2 = drw_modeling(t2, y2, ye2, doshow=doshow)
+        sigma2, tau2 = np.exp(np.median(sample2, axis=0))
+        print("DRW sigma and tau: %.2f, %.2f"%(sigma2, tau2))
 
     tau, nd1, ndeff1, nd2, ndeff2 =  iccf_ndeff(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end, 
                                                 sigma1, tau1, sigma2, tau2, gapx=gapx, gapy=gapy)
@@ -221,7 +233,7 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     idx = (m >= np.arctanh(rmax)) 
     print("probability of rmax in null hypothesis:", np.sum(fm[idx])/np.sum(fm))
 
-    if doshow:
+    if doshow or return_fig:
         plt.rcParams["xtick.direction"] = "in"
         plt.rcParams["ytick.direction"] = "in"
         plt.rcParams["xtick.top"] = True
@@ -267,16 +279,18 @@ def iccf_sigma_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
         ax_ylim = ax.get_ylim()
         ax2.set_ylim(_ax_inverse(ax_ylim[0]), _ax_inverse(ax_ylim[1]))
         ax2.set_yscale("function", functions=(_ax_forward, _ax_inverse))
-
-        plt.show()
+        
+        if doshow:
+            plt.show()
     
-    if doshow:
+    if return_fig:
         return tau, sigma_null, fig 
     else:
         return tau, sigma_null
 
 def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
-                   gapx=None, gapy=None, doshow=False):
+                   gapx=None, gapy=None, doshow=False, return_fig=False,
+                   var_params1=None, var_params2=None):
     """
     Estimate the null hypothesis probability of the ICCF rmax.
     
@@ -296,6 +310,11 @@ def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
         estimating the number of independent points.
     doshow : bool, optional
         If True, plot the results.
+    return_fig : bool, optional
+        If True, return the figure object.
+    var_params1, var_params2 : tuple or None, optional
+        Precomputed DRW parameters for the first and second light curves, respectively.
+        The first element is the DRW sigma and the second element is the DRW tau.
 
     Returns
     -------
@@ -310,13 +329,19 @@ def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     print("rmax: %.2f, zmax: %.2f at tau=%.2f"%(rmax, zmax,tau_peak))
 
     # DRW fits 
-    sample1 = drw_modeling(t1, y1, ye1, doshow=True)
-    sigma1, tau1 = np.exp(np.median(sample1, axis=0))
-    print("DRW sigma and tau: %.2f, %.2f"%(sigma1, tau1))
-
-    sample2 = drw_modeling(t2, y2, ye2, doshow=True)
-    sigma2, tau2 = np.exp(np.median(sample2, axis=0))
-    print("DRW sigma and tau: %.2f, %.2f"%(sigma2, tau2))
+    if var_params1 is not None:
+        sigma1, tau1 = var_params1
+    else:
+        sample1 = drw_modeling(t1, y1, ye1, doshow=doshow)
+        sigma1, tau1 = np.exp(np.median(sample1, axis=0))
+        print("DRW sigma and tau: %.2f, %.2f"%(sigma1, tau1))
+    
+    if var_params2 is not None:
+        sigma2, tau2 = var_params2
+    else:
+        sample2 = drw_modeling(t2, y2, ye2, doshow=doshow)
+        sigma2, tau2 = np.exp(np.median(sample2, axis=0))
+        print("DRW sigma and tau: %.2f, %.2f"%(sigma2, tau2))
 
     tau, nd1, ndeff1, nd2, ndeff2 =  iccf_ndeff(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end, 
                                                 sigma1, tau1, sigma2, tau2, gapx=gapx, gapy=gapy)
@@ -337,7 +362,7 @@ def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
     prob_rmax = np.sum(fm[idx])/np.sum(fm)
     print("probability of rmax in null hypothesis:", prob_rmax)
 
-    if doshow:
+    if doshow or return_fig:
         plt.rcParams["xtick.direction"] = "in"
         plt.rcParams["ytick.direction"] = "in"
         plt.rcParams["xtick.top"] = True
@@ -380,9 +405,10 @@ def iccf_prmax_null(t1, y1, ye1, t2, y2, ye2, ntau, tau_beg, tau_end,
         ax.text(zmax,(ylim[0]+ylim[1])/2.0, "prob: %.2f"%prob_rmax)
         ax.set_xlabel(r"$z_{\rm max}$")
         ax.set_ylabel(r"$p(z_{\rm max})$")
-        plt.show()
+        if doshow:
+            plt.show()
     
-    if doshow:
+    if return_fig:
         return rmax, zmax, prob_rmax, fig 
     else:
         return rmax, zmax, prob_rmax

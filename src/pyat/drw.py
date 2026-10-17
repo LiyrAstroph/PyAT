@@ -85,10 +85,16 @@ def drw_modeling(t, y, yerr, doshow=False, return_prob=False):
     """
     Determine DRW parameters for a given light curve
     
-    :param t: time
-    :param y: flux
-    :param yerr: error
-    :param doshow: whether show figures
+    Parameters
+    ----------
+    t: time
+    y: flux
+    yerr: error
+    doshow: whether show figures
+    return_prob: whether return probability
+    Returns
+    -------
+    sigma, tau, [probability]
     """
     # first normalize the light curve 
     scale = -np.ceil(np.log10(np.max(y)-np.min(y)))
@@ -182,10 +188,14 @@ def drw_modeling_fast(t, y, yerr):
     """
     Determine DRW parameters for a given light curve
     
-    :param t: time
-    :param y: flux
-    :param yerr: error
-    :param doshow: whether show figures
+    Parameters
+    ----------
+    t: time
+    y: flux
+    yerr: error
+    Returns
+    -------
+    sigma, tau
     """
     # first normalize the light curve 
     scale = -np.ceil(np.log10(np.max(y)-np.min(y)))
