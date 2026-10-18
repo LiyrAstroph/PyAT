@@ -94,7 +94,7 @@ def drw_modeling(t, y, yerr, doshow=False, return_prob=False):
     return_prob: whether return probability
     Returns
     -------
-    sigma, tau, [probability]
+    sample, [probability]
     """
     # first normalize the light curve 
     scale = -np.ceil(np.log10(np.max(y)-np.min(y)))

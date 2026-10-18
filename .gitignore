@@ -35,6 +35,7 @@ docs/source/*
 !docs/source/index.rst
 !docs/source/_static
 !docs/source/_static/*.jpg
+!docs/source/_static/*.png
 !docs/Makefile
 !docs/requirements.txt
 
