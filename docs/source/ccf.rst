@@ -143,7 +143,7 @@ PyAT provides the following functions to calculate ICCF:
               that maximum occurs.
     :rtype: numpy.ndarray, numpy.ndarray, float, float
 
-.. function:: iccf_peak_significance(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, nsim=1000, ways=0, doshow=False)
+.. function:: iccf_peak_significance(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, nsim=1000, ways=0, doshow=False, var_params1=None, var_params2=None)
 
     :synopsis: Significance testing of the iccf peak, that is, computing the probability
                for iccf peaks of mock light-curve pairs exceeding the iccf peak of input 
@@ -163,6 +163,10 @@ PyAT provides the following functions to calculate ICCF:
     :param nsim: Number of Monte Carlo simulations to calculate the CCF, default is 1000.
     :param ways: Ways to calculate the CCF, 0: two ways; 1: only interpolate the first light curve; 2: only interpolate the second light curve.
     :param doshow: Whether to show the histogram of iccf peaks of mock light-curve pairs, default is False.
+    :param var_sample1: Variance parameter sample of the first light curve, default is None. 
+                        Supoort DRW model, 1st column is sigma, 2nd column is tau. If None, the sample is determined from DRW fitting.
+    :param var_sample2: Variance parameter sample of the second light curve, default is None. 
+                        Supoort DRW model, 1st column is sigma, 2nd column is tau. If None, the sample is determined from DRW fitting.
 
     :return: ``prob``, ``rmax_sim``
             
@@ -173,7 +177,7 @@ PyAT provides the following functions to calculate ICCF:
     :rtype: float, numpy.ndarray
     
 
-.. function:: iccf_sigma_null(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, gapx=None, gapy=None, doshow=False)
+.. function:: iccf_sigma_null(t1, f1, e1, t2, f2, e2, ntau, tau_beg, tau_end, gapx=None, gapy=None, doshow=False, var_params1=None, var_params2=None)
 
     :synopsis: Estimate the standard deviations of the ICCF following the procedure developed by Li & Wang (2026).
 
@@ -189,6 +193,10 @@ PyAT provides the following functions to calculate ICCF:
     :param gapx: Gaps in the first light curve. A list of time periods like [[t1, t2], [t3, t3]]. Default is None.
     :param gapy: Gaps in the second light curve. A list of time periods like [[t1, t2], [t3, t3]]. Default is None.
     :param doshow: Whether to plot the results, default is False.
+    :param var_params1: Variance parameters of the first light curve, default is None. 
+                        Supoort DRW model, [sigma, tau]. If None, the parameters are determined from DRW fitting.
+    :param var_params2: Variance parameters of the second light curve, default is None. 
+                        Supoort DRW model, [sigma, tau]. If None, the parameters are determined from DRW fitting.
 
     :return: ``tau``, ``sigma_null``, ``fig`` (if doshow=True)
 
