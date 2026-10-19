@@ -23,7 +23,8 @@ the DRW modeling and provides a friendly interface.
 
 .. function:: drw_modeling(t, y, yerr, doshow=False, return_prob=False)
 
-    :synopsis: DRW modeling.
+    :synopsis: DRW modeling. Return the posterior sample of the DRW parameters (sigma, tau) and 
+               the probability of the sample if return_prob is True.
 
     :param t: Time array.
     :param y: Data array.
@@ -49,6 +50,21 @@ the DRW modeling and provides a friendly interface.
     
              sigma, tau are the best-fit parameters.
     :rtype: float, float
+
+
+.. function:: drw_recon(t, y, yerr)
+
+    :synopsis: DRW reconstruction. Return the reconstructed data.
+
+    :param t: Time array.
+    :param y: Data array.
+    :param yerr: Error array.
+    
+    :return: t_rec, y_rec, ye_rec
+    
+             t_rec, y_rec, ye_rec are the reconstructed time array, reconstructed data array, 
+             and reconstructed error array respectively.
+    :rtype: numpy.ndarray, numpy.ndarray, numpy.ndarray
 
 Examples
 --------
@@ -96,4 +112,22 @@ The output is as follows:
     :figclass: align-center
 
     DRW parameter distribution.
-   
+
+If one only wants to determine the best-fit parameters, use the fast modeling function as follows:
+
+.. code-block:: python
+
+    sigma, tau = pyat.drw_modeling_fast(lc[:,0], lc[:,1], lc[:,2])
+    print("best-fit parameters: sigma={:.4f}, tau={:.4f}".format(sigma, tau))
+
+To reconstruct the data, use the following code:
+
+.. code-block:: python
+
+    t_rec, y_rec, ye_rec = pyat.drw_recon(lc[:,0], lc[:,1], lc[:,2])
+
+    # plot the reconstructed data
+    plt.plot(t_rec, y_rec, label="reconstructed data")
+    plt.fill_between(t_rec, y1=y_rec + ye_rec, y2=y_rec - ye_rec, color="gray", label="data")
+    plt.legend()
+    plt.show()
